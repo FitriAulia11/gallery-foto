@@ -15,7 +15,10 @@ use App\Http\Controllers\CommentController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::get('/photo/{id}', function ($id) {
+    $photo = Photo::findOrFail($id);
+    return response()->file(storage_path('app/public/' . $photo->image_path));
+});
 // Halaman utama
 Route::get('/', function () {
     return view('welcome');
@@ -44,9 +47,8 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // CRUD Foto
-    Route::resource('/admin/photos', PhotoController::class)->except(['show']);
-
+    
+  
     // Kelola User
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
     Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');

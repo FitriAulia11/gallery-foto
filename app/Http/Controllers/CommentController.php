@@ -1,22 +1,26 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Comment;
-use Auth;
+use App\Models\Photo;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
     public function store(Request $request, $id)
     {
-        $request->validate(['content' => 'required']);
-
-        Comment::create([
-            'content' => $request->content,
-            'photo_id' => $id,
-            'user_id' => Auth::id(),
+        $request->validate([
+            'comment' => 'required|string|max:500',
         ]);
 
-        return back();
+        Comment::create([
+            'user_id' => Auth::id(),
+            'photo_id' => $id,
+            'comment' => $request->comment,
+        ]);
+
+        return back()->with('success', 'Comment added.');
     }
 }

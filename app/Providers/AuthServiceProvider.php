@@ -13,7 +13,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Photo::class => PhotoPolicy::class,
     ];
 
     /**
@@ -23,4 +23,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         //
     }
+
+    
 }

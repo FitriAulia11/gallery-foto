@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,19 +10,19 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $photos = Photo::latest()->get();
-        return view('admin.index', compact('photos'));
+        $photos = Photo::all();
+        return view('admin.dashboard', compact('photos'));
     }
 
     public function users()
     {
-        $users = User::all();
+        $users = User::where('role', 'user')->get();
         return view('admin.users', compact('users'));
     }
 
     public function destroyUser($id)
     {
         User::findOrFail($id)->delete();
-        return redirect()->route('admin.users')->with('success', 'User berhasil dihapus');
+        return back()->with('success', 'User deleted.');
     }
 }

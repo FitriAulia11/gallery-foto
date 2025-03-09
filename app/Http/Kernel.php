@@ -66,4 +66,13 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
+    protected $routeMiddleware = [
+        // Middleware lainnya...
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'role.redirect' => \App\Http\Middleware\RedirectIfRole::class,
+        'check.roles' => \App\Http\Middleware\CheckRoles::class,
+            'checkRole' => \App\Http\Middleware\CheckUserRole::class,
+        
+];
+    
 }
