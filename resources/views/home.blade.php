@@ -1,24 +1,82 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-6 py-10 text-center">
-    <h2 class="text-3xl font-bold text-gray-800 mb-4">Selamat Datang di Galeri Foto</h2>
-    <p class="text-gray-600 mb-6">Silakan login untuk mengelola atau melihat foto.</p>
+<div class="container text-center py-5">
+    <!-- Hero Section -->
+    <div class="py-5">
+        <h1 class="fw-bold text-dark mb-3">📸 Galeri Foto</h1>
+        <p class="lead text-muted">
+            Unggah dan jelajahi foto-foto luar biasa dari komunitas kami. 
+            Bagikan momen terbaikmu dengan dunia! 🌎✨
+        </p>
+    </div>
 
-    @guest
-        <a href="{{ route('login') }}" class="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg shadow-md hover:bg-blue-600">
-            Login
-        </a>
-    @else
-        @if(Auth::user()->role == 'admin')
-            <a href="{{ route('admin.dashboard') }}" class="bg-green-500 text-white px-6 py-3 rounded-lg text-lg shadow-md hover:bg-green-600">
-                Masuk ke Halaman Admin
+    <!-- Ilustrasi (3 Gambar dalam 1 Baris dengan Efek Hover) -->
+    <div class="row justify-content-center g-3">
+        <div class="col-md-4">
+            <div class="gallery-item">
+                <img src="{{ asset('img/gambar2(1).jpeg') }}" 
+                     alt="Galeri 1" 
+                     class="img-fluid rounded shadow gallery-img">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="gallery-item">
+                <img src="{{ asset('img/gambar2(2).jpeg') }}" 
+                     alt="Galeri 2" 
+                     class="img-fluid rounded shadow gallery-img">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="gallery-item">
+                <img src="{{ asset('img/gambar2(3).jpeg') }}" 
+                     alt="Galeri 3" 
+                     class="img-fluid rounded shadow gallery-img">
+            </div>
+        </div>
+    </div>
+
+    <!-- Cek Role -->
+    <div class="mt-5">
+        @guest
+            <a href="{{ route('login') }}" class="btn btn-lg btn-primary px-5 py-3 shadow rounded-pill fw-bold">
+                <i class="bi bi-box-arrow-in-right"></i> Masuk Sekarang
             </a>
         @else
-        <a href="{{ route('user.dashboard') }}" class="bg-blue-500 text-blue px-6 py-3 rounded-lg text-lg shadow-md hover:bg-blue-600">
-    Masuk ke Halaman User
-</a>
-        @endif
-    @endguest
+            <div class="d-flex justify-content-center gap-4">
+                @if(Auth::user()->role == 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-lg btn-success px-5 py-3 shadow rounded-pill fw-bold">
+                        <i class="bi bi-speedometer2"></i> Dashboard Admin
+                    </a>
+                @else
+                    <a href="{{ route('user.dashboard') }}" class="btn btn-lg btn-info px-5 py-3 shadow rounded-pill fw-bold text-white">
+                        <i class="bi bi-person-circle"></i> Masuk sebagai User
+                    </a>
+                @endif
+            </div>
+        @endguest
+    </div>
 </div>
+
+<!-- CSS untuk Efek Zoom -->
+<style>
+    .gallery-item {
+        overflow: hidden;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .gallery-img {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        width: 100%;
+        height: auto;
+    }
+
+    .gallery-img:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+    }
+</style>
 @endsection

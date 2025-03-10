@@ -8,12 +8,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $photos = Photo::where('status', true)->latest()->get();
-        return view('user.index', compact('photos')); // Perbaiki nama variabel
-    }
-    
-    public function __construct()
-    {
-        $this->middleware('auth');
+        $photos = Photo::where('user_id', auth()->id())->get();
+        return view('user.dashboard', compact('photos'));
     }
 }

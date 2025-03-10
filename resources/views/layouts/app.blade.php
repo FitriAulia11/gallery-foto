@@ -1,89 +1,76 @@
-<!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Galeri Foto')</title>
 
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
-    <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            transition: 0.3s ease-in-out;
+        }
+        .navbar-brand:hover {
+            color: #0d6efd; /* Warna biru Bootstrap */
+        }
+        .container {
+            max-width: 1200px;
+        }
+        main {
+            padding-bottom: 50px; /* Memberikan ruang sebelum footer */
+        }
+    </style>
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto"></ul>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{{ route('home') }}">Galeri</a>
 
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
-                                   aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-person-circle"></i> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        </li>
+                    @endauth
+                </ul>
             </div>
-        </nav>
-
-        <!-- Tampilkan Menu Berdasarkan Role -->
-        <div class="container mt-3">
-            @if(Auth::check())
-                @if(Auth::user()->role == 'admin')
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">Admin Dashboard</a>
-                @elseif(Auth::user()->role == 'user')
-                    <a href="{{ route('user.dashboard') }}" class="btn btn-secondary">User Dashboard</a>
-                @endif
-            @endif
         </div>
+    </nav>
 
-        <main class="py-4">
+    <!-- Main Content -->
+    <main class="py-4">
+        <div class="container">
             @yield('content')
-        </main>
-    </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @yield('scripts')
+
 </body>
 </html>

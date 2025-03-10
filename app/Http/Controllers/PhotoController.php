@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
+
+    public function index()
+    {
+        $photos = Photo::latest()->get();
+        return view('photos.index', compact('photos'));
+    }
+
     public function create()
     {
         return view('photos.create');
@@ -93,9 +100,13 @@ class PhotoController extends Controller
 
     public function like($id)
     {
-        return response()->json(['message' => 'Feature coming soon!']);
+        $photo = Photo::findOrFail($id);
+        $photo->likes += 1;
+        $photo->save();
+    
+        return back()->with('success', 'Foto berhasil diberi like!');
     }
-
+    
     public function toggleStatus($id)
     {
         $photo = Photo::findOrFail($id);
@@ -103,5 +114,17 @@ class PhotoController extends Controller
         $photo->save();
 
         return redirect()->route('admin.dashboard')->with('success', 'Photo status updated.');
+    }
+    public function user()
+{
+    // Ambil foto milik user yang sedang login
+    $photos = Photo::where('user_id', auth()->id())->get();
+
+    return view('photos.user', compact('photos'));
+}
+
+public function show(Photo $photo)
+    {
+        return response()->json($photo);
     }
 }

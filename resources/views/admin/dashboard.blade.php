@@ -1,45 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-6 py-10">
-    <h2 class="text-2xl font-bold text-gray-800 mb-2">Admin Dashboard</h2>
-    <p class="text-gray-600 mb-6">
-        Sebagai admin, Anda dapat menambah, mengedit, dan menghapus foto di album.
-    </p>
+<div class="container">
+    <h2 class="mb-4">Admin Dashboard</h2>
+    
+    <h4>Kelola Pengguna</h4>
+    <table class="table">
+        <tr>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Aksi</th>
+        </tr>
+        @foreach($users as $user)
+        <tr>
+            <td>{{ $user->name }}</td>
+            <td>{{ $user->email }}</td>
+            <td>
+                @can('delete-user', $user)
+                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                </form>
+                @endcan
+            </td>
+        </tr>
+        @endforeach
+    </table>
 
-    <h3 class="text-xl font-bold text-green-800 mb-4">Album Foto</h3>
-
-    <div class="mb-4">
-        <a href="{{ route('photos.create') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:bg-green-600">
-            Tambah Foto
-        </a>
-    </div>
-
-    @if ($photos->isEmpty())
-        <p class="text-gray-500">Tidak ada foto dalam album ini.</p>
-    @else
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @foreach ($photos as $photo)
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src="{{ asset('storage/' . $photo->src) }}" class="w-full h-48 object-cover" alt="Foto">
-                <div class="p-4">
-                    <p class="text-gray-600 text-sm">{{ $photo->desc }}</p>
-                    <div class="mt-2 flex space-x-2">
-                        <form action="{{ route('photos.destroy', $photo->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:bg-red-600">
-                                Hapus
-                            </button>
-                        </form>
-                        <a href="{{ route('photos.edit', $photo->id) }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm shadow-md hover:bg-blue-600">
-                            Edit
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    @endif
+    <h4>Kelola Foto</h4>
+    <table class="table">
+        <tr>
+            <th>Foto</th>
+            <th>Caption</th>
+            <th>Status</th>
+            <th>Aksi</th>
+        </tr>
+        @foreach($photos as $photo)
+        <tr>
+            <td><img src="{{ asset('storage/' . $photo->image_path) }}" width="100"></td>
+            <td>{{ $photo->caption }}</td>
+            <td>{{ $photo->status ? 'Aktif' : 'Nonaktif' }}</td>
+            <td>
+                @can('toggle-photo', $photo)
+                <form action="{{ route('photos.toggle', $photo->id) }}" method="POST">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn btn-sm {{ $photo->status ? 'btn-danger' : 'btn-success' }}">
+                        {{ $photo->status ? 'Nonaktifkan' : 'Aktifkan' }}
+                    </button>
+                </form>
+                @endcan
+            </td>
+        </tr>
+        @endforeach
+    </table>
 </div>
 @endsection
