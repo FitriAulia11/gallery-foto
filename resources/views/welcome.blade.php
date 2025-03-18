@@ -13,7 +13,6 @@
 </head>
 <body class="bg-gray-100">
 
-    <!-- Navbar -->
     <nav class="flex justify-between items-center px-6 py-4 bg-white shadow-md fixed top-0 left-0 w-full z-10">
         <div class="text-3xl font-bold text-blue-600">Gallery</div>
         <div class="hidden md:flex space-x-6">
@@ -27,7 +26,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="relative flex items-center justify-center text-center px-10 py-40 bg-cover bg-center" style="background-image: url('https://source.unsplash.com/1600x900/?photography,landscape');">
         <div class="bg-black bg-opacity-50 px-10 py-16 rounded-lg">
             <h1 class="text-5xl font-bold text-white leading-tight">Selamat Datang di Galeri</h1>
@@ -40,7 +38,6 @@
         </div>
     </section>
 
-    <!-- Images Section -->
     <section id="images" class="bg-white px-10 py-20">
         <h2 class="text-4xl font-bold text-gray-800 text-center mb-8">Galeri Foto</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -67,7 +64,6 @@
         </div>
     </section>
 
-    <!-- Videos Section -->
     <section id="videos" class="bg-gray-100 px-10 py-20">
         <h2 class="text-4xl font-bold text-gray-800 text-center mb-8">Galeri Video</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,7 +92,6 @@
         </div>
     </section>
 
-    <!-- About Section -->
     <section id="about" class="bg-white px-10 py-20 flex flex-col items-center">
         <h2 class="text-4xl font-bold text-gray-800 text-center mb-4">About</h2>
         <p class="text-gray-600 text-lg text-left max-w-2xl">
@@ -105,7 +100,6 @@
         </p>
     </section>
 
-    <!-- Footer -->
     <footer class="bg-gray-900 text-white text-center py-6">
         <p>&copy; 2025 Gallery Foto & Video. All rights reserved.</p>
     </footer>

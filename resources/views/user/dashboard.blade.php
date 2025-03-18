@@ -37,43 +37,31 @@
                         <div class="card-footer bg-white d-flex justify-content-between align-items-center">
                             <small class="text-muted">Diunggah oleh: {{ $photo->user->name }}</small>
 
-                            <!-- Dropdown untuk Like & Komentar -->
-                            <div class="dropdown">
-                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-three-dots"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <form action="{{ route('photos.like', $photo->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-hand-thumbs-up"></i> Like
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('photos.show', $photo->id) }}" class="dropdown-item">
-                                            <i class="bi bi-chat-dots"></i> Komentar
-                                        </a>
-                                    </li>
+                            <div class="d-flex align-items-center">
 
-                                    @if(Auth::user()->role == 'admin')
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a href="{{ route('photos.edit', $photo->id) }}" class="dropdown-item text-warning">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <form action="{{ route('photos.destroy', $photo->id) }}" method="POST">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Hapus foto ini?')">
-                                                    <i class="bi bi-trash"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </li>
-                                    @endif
-                                </ul>
+                            <form action="{{ route('photos.like', $photo->id) }}" method="POST" class="me-2">
+                                    @csrf
+                                    <button type="submit" class="btn btn-light btn-sm">
+                                        <i class="bi bi-hand-thumbs-up"></i>
+                                    </button>
+                                </form>
+
+                                <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm me-2">
+                                    <i class="bi bi-chat-dots"></i>
+                                </a>
+
+                                @if(Auth::user()->role == 'admin')
+                                    <a href="{{ route('photos.edit', $photo->id) }}" class="btn btn-warning btn-sm me-2">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <form action="{{ route('photos.destroy', $photo->id) }}" method="POST">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus foto ini?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -83,7 +71,6 @@
     @endif
 </div>
 
-<!-- Modal Preview Foto -->
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

@@ -33,7 +33,20 @@
     @endif
 </div>
 
-<!-- Modal Preview Foto -->
+<div class="d-flex align-items-center">
+<div class="d-flex align-items-center">
+
+<button type="button" class="btn btn-light btn-sm like-button" data-photo-id="{{ $photo->id }}">
+        <i class="bi bi-hand-thumbs-up"></i>
+        <span class="like-count">{{ $photo->likes->count() }}</span>
+    </button>
+
+    <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm me-2 comment-button" data-photo-id="{{ $photo->id }}">
+        <i class="bi bi-chat-dots"></i>
+        <span class="comment-count">{{ $photo->comments->count() }}</span>
+    </a>
+</div>
+
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -63,7 +76,7 @@
 @endsection
 
 @section('scripts')
-<!-- Tambahkan Masonry -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
 
 <script>
@@ -77,7 +90,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Inisialisasi Masonry setelah halaman dimuat
     var grid = document.querySelector('.row');
     if (grid) {
         var masonry = new Masonry(grid, {

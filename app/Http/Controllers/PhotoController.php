@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Photo;
+use App\Models\Like;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,9 +14,9 @@ class PhotoController extends Controller
 
     public function index()
     {
-        $photos = Photo::latest()->get();
+        $photos = Photo::withCount(['likes', 'comments'])->latest()->get();
         return view('photos.index', compact('photos'));
-    }
+            }
 
     public function create()
     {
@@ -101,12 +102,34 @@ class PhotoController extends Controller
     public function like($id)
     {
         $photo = Photo::findOrFail($id);
-        $photo->likes += 1;
-        $photo->save();
     
-        return back()->with('success', 'Foto berhasil diberi like!');
+        $existingLike = Like::where('photo_id', $photo->id)
+                            ->where('user_id', auth()->id())
+                            ->first();
+    
+        if ($existingLike) {
+            $existingLike->delete();
+            $photo->decrement('likes'); 
+            return response()->json(['status' => 'unliked', 'likes' => $photo->likes]);
+        } else {
+
+            Like::create([
+                'photo_id' => $photo->id,
+                'user_id' => auth()->id(),
+            ]);
+            $photo->increment('likes');
+            return response()->json(['status' => 'liked', 'likes' => $photo->likes]);
+        }
+         
+    // Tambahkan like baru
+    $photo->likes()->create([
+        'user_id' => auth()->id()
+    ]);
+
+    // Kembalikan jumlah like terbaru dalam JSON response
+    return response()->json(['likes_count' => $photo->likes()->count()]);
     }
-    
+        
     public function toggleStatus($id)
     {
         $photo = Photo::findOrFail($id);
@@ -117,14 +140,31 @@ class PhotoController extends Controller
     }
     public function user()
 {
-    // Ambil foto milik user yang sedang login
+    
     $photos = Photo::where('user_id', auth()->id())->get();
 
     return view('photos.user', compact('photos'));
 }
 
-public function show(Photo $photo)
+public function show($id)
     {
-        return response()->json($photo);
+        $photo = Photo::with('comments.user')->find($id);
+
+        if (!$photo) {
+            return response()->json(['message' => 'Photo not found'], 404);
+        }
+
+        return response()->json([
+            'comments_count' => $photo->comments->count(),
+            'comments' => $photo->comments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'user' => $comment->user->name,
+                    'content' => $comment->content,
+                    'created_at' => $comment->created_at->diffForHumans(),
+                ];
+                return view('photos.show', compact('photo'));
+            }),
+        ]);
     }
 }

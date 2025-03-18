@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
- 
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,7 +42,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/photos/user', [PhotoController::class, 'user'])->name('photos.user');
     Route::post('/photos/{photo}/like', [PhotoController::class, 'like'])->name('photos.like');
     Route::get('/photos/{photo}', [PhotoController::class, 'show'])->name('photos.show'); // Untuk komentar
-
+    Route::post('/photos/{id}/like', [LikeController::class, 'like'])->name('photos.like');
+    Route::get('/photos/{id}/likes', [LikeController::class, 'getLikes'])->name('photos.likes');
     
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -59,3 +61,6 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 });
 
+Route::post('/photos/{id}/like', [PhotoController::class, 'like'])->name('photos.like');
+Route::get('/photos/{id}', [PhotoController::class, 'show'])->name('photos.show');
+Route::post('/photos/{id}/comment', [CommentController::class, 'store']);

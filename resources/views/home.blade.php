@@ -2,8 +2,8 @@
 
 @section('content')
 <div class="container text-center py-5">
-    <!-- Hero Section -->
-    <div class="py-5">
+
+<div class="py-5">
         <h1 class="fw-bold text-dark mb-3">📸 Galeri Foto</h1>
         <p class="lead text-muted">
             Unggah dan jelajahi foto-foto luar biasa dari komunitas kami. 
@@ -11,7 +11,6 @@
         </p>
     </div>
 
-    <!-- Ilustrasi (3 Gambar dalam 1 Baris dengan Efek Hover) -->
     <div class="row justify-content-center g-3">
         <div class="col-md-4">
             <div class="gallery-item">
@@ -58,7 +57,6 @@
     </div>
 </div>
 
-<!-- CSS untuk Efek Zoom -->
 <style>
     .gallery-item {
         overflow: hidden;

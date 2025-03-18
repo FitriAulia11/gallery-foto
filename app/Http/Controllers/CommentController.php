@@ -12,15 +12,22 @@ class CommentController extends Controller
     public function store(Request $request, $id)
     {
         $request->validate([
-            'comment' => 'required|string|max:500',
+            'content' => 'required|string|max:255'
         ]);
 
-        Comment::create([
+        $photo = Photo::findOrFail($id);
+
+        $comment = Comment::create([
+            'photo_id' => $photo->id,
             'user_id' => Auth::id(),
-            'photo_id' => $id,
-            'comment' => $request->comment,
+            'content' => $request->content
         ]);
 
-        return back()->with('success', 'Comment added.');
+        return response()->json([
+            'comment' => true,
+                'user' => Auth::user()->name,
+                'content' => $comment->content
+            ]
+        );
     }
 }

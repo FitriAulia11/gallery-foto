@@ -10,10 +10,21 @@ class Photo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'image_path', 'caption'];
+    protected $fillable = ['title', 'description', 'image_path', 'user_id', 'status'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+{
+    return $this->hasMany(Like::class);
+}
+
 }
