@@ -21,4 +21,9 @@ public function create(User $user)
     return true; // Semua pengguna bisa menambah foto
 }
 
+public function delete(User $user, Photo $photo)
+{
+    return $user->id === $photo->user_id || $user->role === 'admin';
+}
+
 }

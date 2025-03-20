@@ -39,5 +39,12 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
- 
-}
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('home'); 
+    }
+    }

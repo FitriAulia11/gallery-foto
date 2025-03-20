@@ -3,7 +3,8 @@
 @section('content')
 <div class="container">
     <h2 class="mb-4">Admin Dashboard</h2>
-    
+
+    {{-- Kelola Pengguna --}}
     <h4>Kelola Pengguna</h4>
     <table class="table">
         <tr>
@@ -27,11 +28,13 @@
         @endforeach
     </table>
 
+    {{-- Kelola Foto --}}
     <h4>Kelola Foto</h4>
     <table class="table">
         <tr>
             <th>Foto</th>
             <th>Caption</th>
+            <th>Diunggah Oleh</th>
             <th>Status</th>
             <th>Aksi</th>
         </tr>
@@ -39,16 +42,25 @@
         <tr>
             <td><img src="{{ asset('storage/' . $photo->image_path) }}" width="100"></td>
             <td>{{ $photo->caption }}</td>
+            <td>{{ $photo->user->name }}</td>
             <td>{{ $photo->status ? 'Aktif' : 'Nonaktif' }}</td>
             <td>
-                @can('toggle-photo', $photo)
-                <form action="{{ route('photos.toggle', $photo->id) }}" method="POST">
+                {{-- Admin bisa aktifkan/nonaktifkan foto --}}
+                <form action="{{ route('photos.toggle', $photo->id) }}" method="POST" style="display:inline;">
                     @csrf @method('PATCH')
                     <button type="submit" class="btn btn-sm {{ $photo->status ? 'btn-danger' : 'btn-success' }}">
                         {{ $photo->status ? 'Nonaktifkan' : 'Aktifkan' }}
                     </button>
                 </form>
-                @endcan
+
+                {{-- Admin bisa hapus foto --}}
+                <form action="{{ route('photos.destroy', $photo->id) }}" method="POST" style="display:inline;">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                </form>
+
+                {{-- Lihat detail foto & komentar --}}
+                <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-sm btn-primary">Lihat</a>
             </td>
         </tr>
         @endforeach

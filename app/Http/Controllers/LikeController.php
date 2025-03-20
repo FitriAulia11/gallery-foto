@@ -3,38 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Like;
 use App\Models\Photo;
+use App\Models\Like;
 use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
-    public function likePhoto($photoId)
+    public function like($id)
     {
-        $photo = Photo::findOrFail($photoId);
-        $user = Auth::user();
-    
-        $existingLike = Like::where('photo_id', $photo->id)
-                            ->where('user_id', $user->id)
+        $photo = Photo::findOrFail($id);
+
+        // Cek apakah user sudah like sebelumnya
+        $existingLike = Like::where('user_id', Auth::id())
+                            ->where('photo_id', $photo->id)
                             ->first();
-    
+
         if ($existingLike) {
+            // Jika sudah like, maka unlike (hapus like)
             $existingLike->delete();
-            $totalLikes = $photo->likes()->count(); // Perbaikan di sini
-            return response()->json([
-                'status' => 'unliked',
-                'total_likes' => $totalLikes
-            ]);
-        } else {
-            Like::create([
-                'photo_id' => $photo->id,
-                'user_id' => $user->id
-            ]);
-    
-            $totalLikes = $photo->likes()->count(); // Perbaikan di sini
-            return response()->json([
-                'status' => 'liked',
-                'total_likes' => $totalLikes
-            ]);
+            return back()->with('success', 'Anda membatalkan like foto ini.');
         }
+
+        // Jika belum, tambahkan like ke database
+        Like::create([
+            'user_id' => Auth::id(),
+            'photo_id' => $photo->id,
+        ]);
+
+        return back()->with('success', 'Foto berhasil disukai.');
     }
+}

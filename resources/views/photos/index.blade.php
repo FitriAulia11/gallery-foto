@@ -68,6 +68,13 @@
                 <a href="#" id="commentLink" class="btn btn-outline-secondary">
                     <i class="bi bi-chat-dots"></i> Komentar
                 </a>
+                <form action="{{ route('photo.like', $photo->id) }}" method="POST">
+    @csrf
+    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">
+        ❤️ {{ $photo->likes->count() }} Suka
+    </button>
+</form>
+
             </div>
         </div>
     </div>
@@ -100,3 +107,18 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 @endsection
+@foreach ($photos as $photo)
+    <div class="card mb-3">
+        <img src="{{ asset('storage/' . $photo->image) }}" class="card-img-top" alt="Photo">
+        <div class="card-body">
+            <h5 class="card-title">{{ $photo->title }}</h5>
+            <p class="card-text">{{ $photo->description }}</p>
+            <button class="btn btn-light btn-sm me-2 open-comments" 
+                data-bs-toggle="modal" 
+                data-bs-target="#commentModal"
+                data-comment-url="{{ route('photos.comments', $photo->id) }}">
+                <i class="bi bi-chat-dots"></i> Komentar
+            </button>
+        </div>
+    </div>
+@endforeach

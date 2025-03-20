@@ -10,14 +10,17 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $users = User::all();
-        $photos = Photo::all();
+        $users = User::all(); // Ambil semua user
+        $photos = Photo::with('user')->get(); // Ambil semua foto dengan data user
+
         return view('admin.dashboard', compact('users', 'photos'));
     }
 
     public function destroyUser($id)
     {
-        User::findOrFail($id)->delete();
-        return back()->with('success', 'User berhasil dihapus');
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('admin.dashboard')->with('success', 'User berhasil dihapus.');
     }
 }

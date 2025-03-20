@@ -1,106 +1,58 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
+<div class="container py-4">
+    <div class="row g-4 bg-white shadow-lg rounded p-4">
+        
+        <div class="col-md-7 d-flex justify-content-center align-items-center bg-light rounded">
+        <img src="{{ asset('storage/' . $photo->image_path) }}" class="rounded img-fluid w-75 shadow">
+        </div>
 
-    <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    <h3 class="fw-bold">{{ $photo->title }}</h3>
-                    <div class="mt-3">
-                        <img src="{{ asset('storage/' . $photo->image_path) }}" 
-                             class="img-fluid rounded shadow-sm" 
-                             style="max-width: 350px; border: 1px solid #ddd;">
+        <div class="col-md-5">
+            <!-- Tombol Like di bagian atas -->
+            <div class="d-flex justify-content-between align-items-center">
+                <form action="{{ route('photos.like', $photo->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center">
+                        @if ($photo->likes->where('user_id', auth()->id())->count() > 0)
+                            <i class="fas fa-heart text-danger fs-4"></i>
+                        @else
+                            <i class="far fa-heart text-dark fs-4"></i>
+                        @endif
+                        <span class="ms-2 text-dark fs-5">{{ $photo->likes->count() }}</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Nama Pengguna -->
+            <div class="d-flex align-items-center mt-3">
+                <span class="fw-semibold fs-5">{{ $photo->user->name ?? 'Pengguna' }}</span>
+            </div>
+
+            <!-- Jumlah Komentar -->
+            <div class="d-flex align-items-center my-3">
+                <i class="fas fa-comment text-secondary fs-5"></i>
+                <span class="ms-2 fs-5">{{ $photo->comments->count() }} Komentar</span>
+            </div>
+
+            <!-- Daftar Komentar -->
+            <div class="overflow-auto border-top pt-3" style="max-height: 200px;">
+                @foreach ($photo->comments as $comment)
+                    <div class="bg-light p-2 rounded mb-2">
+                        <p class="mb-0">{{ $comment->content }}</p>
                     </div>
-                    <p class="mt-3 text-muted">{{ $photo->description }}</p>
-                </div>
+                @endforeach
             </div>
-        </div>
 
-        <div class="col-md-8 mt-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="fw-bold">Komentar</h5>
-                    @if($photo->comments->isEmpty())
-                        <p class="text-muted text-center">Belum ada komentar.</p>
-                    @else
-                        <div class="list-group" id="commentList">
-                            @foreach($photo->comments as $comment)
-                                <div class="list-group-item d-flex align-items-start">
-                                    <div class="me-3">
-                                        <img src="https://via.placeholder.com/40" 
-                                             class="rounded-circle" 
-                                             alt="User Avatar">
-                                    </div>
-                                    <div>
-                                        <strong>{{ $comment->user->name ?? 'User' }}</strong>
-                                        <p class="mb-1">{{ $comment->content }}</p>
-                                        <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8 mt-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Tambahkan Komentar</h5>
-
-                    <form id="commentForm" data-photo-id="{{ $photo->id }}">
-                        @csrf
-                        <div class="input-group">
-                            <input type="text" id="commentInput" class="form-control" placeholder="Tulis komentar..." required>
-                            <button type="submit" class="btn btn-primary">Kirim</button>
-                        </div>
-                    </form>
-
-                    <ul id="commentList" class="mt-3">
-                        @foreach ($photo->comments as $comment)
-                            <li><strong>{{ $comment->user->name }}</strong>: {{ $comment->content }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
+            <!-- Form Komentar -->
+            <form action="{{ route('comments.store', $photo->id) }}" method="POST" class="mt-3">
+                @csrf
+                <input type="text" name="content" class="form-control mb-2" placeholder="Tambahkan komentar...">
+                <button type="submit" class="btn btn-danger w-100">Kirim</button>
+            </form>
         </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("commentForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            let photoId = this.getAttribute("data-photo-id");
-            let commentInput = document.getElementById("commentInput");
-            let commentList = document.getElementById("commentList");
-
-            fetch(`/photos/${photoId}/comments`, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ content: commentInput.value })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let newComment = document.createElement("li");
-                    newComment.innerHTML = `<strong>${data.user_name}</strong>: ${data.content}`;
-                    commentList.prepend(newComment);
-                    commentInput.value = "";
-                } else {
-                    alert("Gagal menambahkan komentar.");
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-    });
-</script>
-
+<script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
 @endsection

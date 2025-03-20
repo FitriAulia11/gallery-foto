@@ -1,33 +1,31 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Comment;
-use App\Models\Photo;
-use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, $id)
+    public function store(Request $request, $photoId)
     {
         $request->validate([
-            'content' => 'required|string|max:255'
+            'content' => 'required|string|max:255',
         ]);
 
-        $photo = Photo::findOrFail($id);
-
-        $comment = Comment::create([
-            'photo_id' => $photo->id,
+        Comment::create([
             'user_id' => Auth::id(),
-            'content' => $request->content
+            'photo_id' => $photoId,
+            'content' => $request->content,
         ]);
+        
 
-        return response()->json([
-            'comment' => true,
-                'user' => Auth::user()->name,
-                'content' => $comment->content
-            ]
-        );
+        return redirect()->back()->with('success', 'Komentar berhasil ditambahkan!');
     }
+
+    public function __construct()
+{
+    $this->middleware('auth');
+}
+
 }
