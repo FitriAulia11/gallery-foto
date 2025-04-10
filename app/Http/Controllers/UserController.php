@@ -21,4 +21,12 @@ class UserController extends Controller
     return view('profile.show', compact('user', 'photos'));
 }
 
+public function showWelcome()
+{
+    $photos = photo::latest()->take(6)->get();
+    return view('Welcome',compact('photos'));
 }
+
+}
+
+

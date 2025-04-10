@@ -71,7 +71,7 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'role.redirect' => \App\Http\Middleware\RedirectIfRole::class,
         'check.roles' => \App\Http\Middleware\CheckRoles::class,
-            'checkRole' => \App\Http\Middleware\CheckUserRole::class,
+        'checkRole' => \App\Http\Middleware\CheckUserRole::class,
         
 ];
     

@@ -45,6 +45,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('home'); 
+        // Redirect ke halaman Welcome setelah logout
+        return redirect()->route('welcome');
     }
-    }
+}

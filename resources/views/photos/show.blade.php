@@ -10,19 +10,22 @@
 
         <div class="col-md-5">
             <!-- Tombol Like di bagian atas -->
-            <div class="d-flex justify-content-between align-items-center">
-                <form action="{{ route('photos.like', $photo->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center">
-                        @if ($photo->likes->where('user_id', auth()->id())->count() > 0)
-                            <i class="fas fa-heart text-danger fs-4"></i>
-                        @else
-                            <i class="far fa-heart text-dark fs-4"></i>
-                        @endif
-                        <span class="ms-2 text-dark fs-5">{{ $photo->likes->count() }}</span>
-                    </button>
-                </form>
-            </div>
+           <div class="d-flex justify-content-between align-items-center">
+    <form action="{{ route('photos.like', $photo->id) }}" method="POST">
+        @csrf
+        <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center">
+            @if ($photo->likes->where('user_id', auth()->id())->count() > 0)
+                <i class="fas fa-heart text-danger fs-4"></i>
+                <span class="ms-2 text-danger fs-5">Unlike</span>
+            @else
+                <i class="far fa-heart text-dark fs-4"></i>
+                <span class="ms-2 text-dark fs-5">Like</span>
+            @endif
+            <span class="ms-2 text-muted fs-5">({{ $photo->likes->count() }})</span>
+        </button>
+    </form>
+</div>
+
 
             <!-- Nama Pengguna -->
             <div class="d-flex align-items-center mt-3">

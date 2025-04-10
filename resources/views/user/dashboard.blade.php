@@ -1,101 +1,98 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2 class="fw-bold">Dashboard</h2>
-    <p class="text-muted">Lihat semua foto yang telah diunggah oleh pengguna.</p>
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">📸 Galeri Foto</h2>
+        <p class="text-muted">Jelajahi dan bagikan foto terbaikmu di sini.</p>
+    </div>
 
-    <!-- Search Bar di Bawah Navbar -->
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-md-4">
-                <form action="{{ route('dashboard') }}" method="GET">
-                    <div class="input-group shadow-sm">
-                        <input class="form-control" type="search" name="search" placeholder="Cari gambar..." value="{{ request('search') }}">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <form method="GET" action="{{ route('photos.index') }}">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control rounded-start-pill" placeholder="🔍 Cari foto berdasarkan caption atau pengguna..." value="{{ request('search') }}">
+                    <button type="submit" class="btn btn-primary rounded-end-pill px-4">Cari</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Tambahkan Jarak antara Search Bar dan Galeri -->
-    <div class="mb-4"></div>
+    @if($photos->isEmpty())
+        <div class="alert alert-warning text-center">
+            Belum ada foto yang diunggah.
+        </div>
+    @else
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach($photos as $photo)
+                <div class="col">
+                    <div class="card border-0 shadow rounded-4 h-100">
+                        <img 
+                            src="{{ asset('storage/' . $photo->image_path) }}" 
+                            alt="Photo"
+                            class="card-img-top preview-photo rounded-top-4"
+                            loading="lazy"
+                            style="cursor: pointer; transition: transform 0.2s, opacity 0.3s;"
+                            onmouseover="this.style.transform='scale(1.03)'; this.style.opacity='0.9';"
+                            onmouseout="this.style.transform='scale(1)'; this.style.opacity='1';"
+                            data-bs-toggle="modal"
+                            data-bs-target="#photoModal"
+                            data-src="{{ asset('storage/' . $photo->image_path) }}"
+                            data-caption="{{ $photo->caption }}"
+                            data-user="{{ $photo->user->name }}"
+                            data-like-url="{{ route('photos.like', $photo->id) }}"
+                            data-comment-url="{{ route('photos.show', $photo->id) }}"
+                            data-like-count="{{ $photo->likes->count() }}"
+                            data-comment-count="{{ $photo->comments->count() }}"
+                            data-is-liked="{{ $photo->likes->contains('user_id', auth()->id()) ? 'true' : 'false' }}"
+                        >
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach($photos as $photo)
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ asset('storage/' . $photo->image_path) }}" 
-                         class="card-img-top img-fluid w-100 preview-photo" 
-                         style="max-height: 300px; object-fit: cover; cursor: pointer;" 
-                         data-bs-toggle="modal" 
-                         data-bs-target="#photoModal"
-                         data-src="{{ asset('storage/' . $photo->image_path) }}"
-                         data-caption="{{ $photo->caption }}"
-                         data-user="{{ $photo->user->name }}"
-                         data-like-url="{{ route('photos.like', $photo->id) }}"
-                         data-comment-url="{{ route('photos.show', $photo->id) }}"
-                         data-like-count="{{ $photo->likes_count }}"
-                         data-comment-count="{{ $photo->comments_count }}"
-                         data-is-liked="{{ $photo->likes->where('user_id', auth()->id())->count() > 0 ? 'true' : 'false' }}"
-                         alt="Photo">
-
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $photo->caption }}</h5>
-                        <p class="text-muted">{{ $photo->user->name }}</p>
-                    </div>
-                    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">👤 {{ $photo->user->name }}</span>
-
-                        <div class="d-flex align-items-center">
-                            <form action="{{ route('photos.like', $photo->id) }}" method="POST" class="me-2 like-form">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-danger btn-sm like-button">
-                                    <i class="bi {{ Auth::user() && $photo->likes->contains('user_id', Auth::id()) ? 'bi-heart-fill text-danger' : 'bi-heart' }} me-1 like-icon"></i> 
-                                    <span class="like-count">{{ $photo->likes_count ?? 0 }}</span>
-                                </button>
-                            </form>
-
-                            <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center">
-                                <i class="bi bi-chat-dots me-1"></i> 
-                                <span class="comment-count">{{ $photo->comments_count ?? 0 }}</span>
-                            </a>
+                        <div class="card-body text-center">
+                            <h6 class="fw-semibold mb-1">{{ $photo->caption ?? 'Tanpa Judul' }}</h6>
+                            <p class="text-muted small mb-2">👤 {{ $photo->user->name }}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <!-- Tombol Like -->
+                                <form action="{{ route('photos.like', $photo->id) }}" method="POST" class="like-form">
+                                    @csrf
+                                    <button type="submit" class="btn btn-light btn-sm like-button">
+                                        <i class="bi {{ $photo->likes->contains('user_id', auth()->id()) ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
+                                        <span class="like-count">{{ $photo->likes->count() }}</span>
+                                    </button>
+                                </form>
+                                <!-- Tombol Komentar -->
+                                <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm">
+                                    <i class="bi bi-chat-dots"></i>
+                                    <span class="comment-count">{{ $photo->comments->count() }}</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
-    </div>
+            @endforeach
+        </div>
+    @endif
 </div>
 
-<!-- Modal untuk menampilkan detail foto -->
+<!-- Modal Preview Foto -->
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 shadow">
             <div class="modal-header">
-                <h5 class="modal-title" id="photoModalLabel">Foto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Detail Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalPhoto" src="" class="img-fluid rounded" 
-                     alt="Preview"
-                     style="width: 100%; max-height: 500px; object-fit: cover;">
-                <p class="mt-2 text-muted" id="photoCaption"></p>
-                <p class="text-muted" id="photoUser"></p>
+                <img id="modalPhoto" class="img-fluid rounded-4 shadow mb-3" style="max-height: 400px; object-fit: cover;" alt="Preview">
+                <p class="fw-bold mb-1" id="photoCaption"></p>
+                <p class="text-muted small" id="photoUser"></p>
             </div>
-            <div class="modal-footer d-flex align-items-center">
-                <span id="likeCount" class="me-2 fs-5 text-dark"></span>
-                <form id="likeForm" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger d-flex align-items-center">
-                        <i id="likeIcon" class="bi bi-heart me-1"></i> Like
-                    </button>
-                </form>
-                <span id="commentCount" class="ms-3 me-2 fs-5 text-dark"></span>
-                <a href="#" id="commentLink" class="btn btn-outline-secondary d-flex align-items-center">
+            <div class="modal-footer justify-content-center">
+                <span class="me-2 fs-6" id="likeCount"></span>
+                <button type="button" class="btn btn-outline-danger btn-sm d-flex align-items-center" id="modalLikeButton">
+                    <i id="likeIcon" class="bi bi-heart me-1"></i> Suka
+                </button>
+                <span class="ms-3 me-2 fs-6" id="commentCount"></span>
+                <a href="#" id="commentLink" class="btn btn-outline-secondary btn-sm d-flex align-items-center">
                     <i class="bi bi-chat-dots me-1"></i> Komentar
                 </a>
             </div>
@@ -106,31 +103,43 @@
 
 @section('scripts')
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".preview-photo").forEach(photo => {
-        photo.addEventListener("click", function() {
-            document.getElementById("modalPhoto").src = this.getAttribute("data-src");
-            document.getElementById("photoCaption").innerText = this.getAttribute("data-caption");
-            document.getElementById("photoUser").innerText = "👤 " + this.getAttribute("data-user");
-            document.getElementById("likeForm").action = this.getAttribute("data-like-url");
-            document.getElementById("commentLink").href = this.getAttribute("data-comment-url");
+        photo.addEventListener("click", function () {
+            const modalPhoto = document.getElementById("modalPhoto");
+            const photoCaption = document.getElementById("photoCaption");
+            const photoUser = document.getElementById("photoUser");
+            const likeCount = document.getElementById("likeCount");
+            const commentCount = document.getElementById("commentCount");
+            const likeIcon = document.getElementById("likeIcon");
+            const modalLikeButton = document.getElementById("modalLikeButton");
+            const commentLink = document.getElementById("commentLink");
 
-            let likeCount = this.getAttribute("data-like-count") || 0;
-            let commentCount = this.getAttribute("data-comment-count") || 0;
-            
-            document.getElementById("likeCount").innerText = likeCount;
-            document.getElementById("commentCount").innerText = commentCount;
-            
-            let isLiked = this.getAttribute("data-is-liked") === "true";
-            let likeIcon = document.getElementById("likeIcon");
-            
-            if (isLiked) {
-                likeIcon.classList.remove("bi-heart");
-                likeIcon.classList.add("bi-heart-fill", "text-danger");
-            } else {
-                likeIcon.classList.remove("bi-heart-fill", "text-danger");
-                likeIcon.classList.add("bi-heart");
-            }
+            modalPhoto.src = this.dataset.src;
+            photoCaption.textContent = this.dataset.caption;
+            photoUser.textContent = "👤 " + this.dataset.user;
+            likeCount.textContent = this.dataset.likeCount + " suka";
+            commentCount.textContent = this.dataset.commentCount + " komentar";
+            commentLink.href = this.dataset.commentUrl;
+
+            const isLiked = this.dataset.isLiked === "true";
+            likeIcon.className = isLiked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
+
+            modalLikeButton.onclick = () => {
+                fetch(this.dataset.likeUrl, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    likeCount.textContent = data.likes + " suka";
+                    likeIcon.className = data.liked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
+                });
+            };
         });
     });
 });

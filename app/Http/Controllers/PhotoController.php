@@ -1,6 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Http\Request;
 use App\Models\Photo;
@@ -11,24 +12,22 @@ class PhotoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Photo::where('user_id', Auth::id())->latest();
+        $query = Photo::with(['user', 'likes', 'comments']);
     
-        
         if ($request->has('search')) {
             $search = $request->search;
-            
+    
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'LIKE', "%$search%")
-                  ->orWhere('description', 'LIKE', "%$search%");
+                $q->where('description', 'like', '%' . $search . '%')                   ->orWhereHas('user', function ($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
             });
         }
     
-        $photos = $query->withCount('likes', 'comments')->get();
+        $photos = $query->latest()->get();
     
-        return view('user.dashboard', compact('photos'));
-    }
-
-    
+        return view('photos.index', compact('photos'));
+    }    
             
 
     public function create()
@@ -61,35 +60,34 @@ class PhotoController extends Controller
         return redirect()->route('user.dashboard')->with('success', 'Foto berhasil diunggah!');
     }
     
+
     public function show($id)
     {
         $photo = Photo::with('comments')->findOrFail($id);
         return view('photos.show', compact('photo'));
     }
 
-    public function like($id)
-    {
-        $photo = Photo::findOrFail($id);
+public function like(Photo $photo)
+{
+    $user = auth()->user();
 
-        // Cek apakah user sudah like sebelumnya
-        $existingLike = Like::where('user_id', Auth::id())
-                            ->where('photo_id', $photo->id)
-                            ->first();
-
-        if ($existingLike) {
-            // Jika sudah like, maka unlike (hapus like)
-            $existingLike->delete();
-            return back()->with('success', 'Anda membatalkan like foto ini.');
-        }
-
-        // Jika belum, tambahkan like ke database
-        Like::create([
-            'user_id' => Auth::id(),
-            'photo_id' => $photo->id,
-        ]);
-
-        return back()->with('success', 'Foto berhasil disukai.');
+    if (!$user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
+
+    $liked = $photo->likes()->where('user_id', $user->id)->exists();
+
+    if ($liked) {
+        $photo->likes()->where('user_id', $user->id)->delete();
+    } else {
+        $photo->likes()->create(['user_id' => $user->id]);
+    }
+
+    return response()->json([
+        'liked' => !$liked,
+        'likes' => $photo->likes()->count(),
+    ]);
+}
 
   
     public function toggleStatus($id)
@@ -113,7 +111,7 @@ public function destroy($id)
 
     Storage::delete('public/' . $photo->image_path);
     $photo->delete();
-    
+
     $this->authorize('delete', $photo);
 
     return redirect()->route('profile.show', Auth::id())->with('success', 'Foto berhasil dihapus!');
@@ -166,6 +164,8 @@ public function profile(User $user)
 
     return view('profile', compact('user', 'photos'));
 }
+
+
 
 
 }

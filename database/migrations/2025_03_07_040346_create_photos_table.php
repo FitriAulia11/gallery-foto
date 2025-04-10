@@ -9,29 +9,25 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->default('Untitled'); // Menambahkan default value
+            $table->string('title')->nullable(); // cukup satu kali
             $table->text('description')->nullable();
-            $table->string('image_path'); // Sesuai dengan model
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->boolean('status')->default(true); // Untuk On/Off Foto oleh admin
-            $table->string('file_name'); // Menyimpan nama file gambar
-            $table->string('title')->nullable(); // Opsional, untuk judul foto
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('image_path'); // path file untuk ditampilkan
+            $table->string('file_path');   // simpan nama file (boleh pakai satu dari dua ini)
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->boolean('status')->default(true); // aktif/nonaktif oleh admin
+
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('photos', function (Blueprint $table) {
-            $table->dropColumn('image_path');
-        });
-        }
+        Schema::dropIfExists('photos');
+    }
 };

@@ -26,6 +26,21 @@
                              data-like-url="{{ route('photos.like', $photo->id) }}"
                              data-comment-url="{{ route('photos.show', $photo->id) }}"
                              alt="Photo">
+
+                        <div class="card-body d-flex justify-content-between">
+                            <form action="{{ route('photos.like', $photo->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-light btn-sm like-button">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                    <span class="like-count">{{ $photo->likes->count() }}</span>
+                                </button>
+                            </form>
+
+                            <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm comment-button">
+                                <i class="bi bi-chat-dots"></i>
+                                <span class="comment-count">{{ $photo->comments->count() }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -33,20 +48,7 @@
     @endif
 </div>
 
-<div class="d-flex align-items-center">
-<div class="d-flex align-items-center">
-
-<button type="button" class="btn btn-light btn-sm like-button" data-photo-id="{{ $photo->id }}">
-        <i class="bi bi-hand-thumbs-up"></i>
-        <span class="like-count">{{ $photo->likes->count() }}</span>
-    </button>
-
-    <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm me-2 comment-button" data-photo-id="{{ $photo->id }}">
-        <i class="bi bi-chat-dots"></i>
-        <span class="comment-count">{{ $photo->comments->count() }}</span>
-    </a>
-</div>
-
+<!-- Modal Foto -->
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -68,22 +70,13 @@
                 <a href="#" id="commentLink" class="btn btn-outline-secondary">
                     <i class="bi bi-chat-dots"></i> Komentar
                 </a>
-                <form action="{{ route('photo.like', $photo->id) }}" method="POST">
-    @csrf
-    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">
-        ❤️ {{ $photo->likes->count() }} Suka
-    </button>
-</form>
-
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
 
 <script>
@@ -107,18 +100,3 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 @endsection
-@foreach ($photos as $photo)
-    <div class="card mb-3">
-        <img src="{{ asset('storage/' . $photo->image) }}" class="card-img-top" alt="Photo">
-        <div class="card-body">
-            <h5 class="card-title">{{ $photo->title }}</h5>
-            <p class="card-text">{{ $photo->description }}</p>
-            <button class="btn btn-light btn-sm me-2 open-comments" 
-                data-bs-toggle="modal" 
-                data-bs-target="#commentModal"
-                data-comment-url="{{ route('photos.comments', $photo->id) }}">
-                <i class="bi bi-chat-dots"></i> Komentar
-            </button>
-        </div>
-    </div>
-@endforeach

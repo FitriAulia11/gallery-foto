@@ -1,69 +1,59 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">Admin Dashboard</h2>
+    <h2 class="mb-4 fw-bold">Dashboard Admin</h2>
 
-    {{-- Kelola Pengguna --}}
-    <h4>Kelola Pengguna</h4>
-    <table class="table">
-        <tr>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>Aksi</th>
-        </tr>
-        @foreach($users as $user)
-        <tr>
-            <td>{{ $user->name }}</td>
-            <td>{{ $user->email }}</td>
-            <td>
-                @can('delete-user', $user)
-                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                </form>
-                @endcan
-            </td>
-        </tr>
-        @endforeach
-    </table>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-image-fill"></i>
+                    <h4 class="mt-2">Total Foto</h4>
+                    <h2>{{ $totalPhotos }}</h2>
+                </div>
+            </div>
+        </div>
 
-    {{-- Kelola Foto --}}
-    <h4>Kelola Foto</h4>
-    <table class="table">
-        <tr>
-            <th>Foto</th>
-            <th>Caption</th>
-            <th>Diunggah Oleh</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
-        @foreach($photos as $photo)
-        <tr>
-            <td><img src="{{ asset('storage/' . $photo->image_path) }}" width="100"></td>
-            <td>{{ $photo->caption }}</td>
-            <td>{{ $photo->user->name }}</td>
-            <td>{{ $photo->status ? 'Aktif' : 'Nonaktif' }}</td>
-            <td>
-                {{-- Admin bisa aktifkan/nonaktifkan foto --}}
-                <form action="{{ route('photos.toggle', $photo->id) }}" method="POST" style="display:inline;">
-                    @csrf @method('PATCH')
-                    <button type="submit" class="btn btn-sm {{ $photo->status ? 'btn-danger' : 'btn-success' }}">
-                        {{ $photo->status ? 'Nonaktifkan' : 'Aktifkan' }}
-                    </button>
-                </form>
+        <div class="col-md-4">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-folder-fill"></i>
+                    <h4 class="mt-2">Total Album</h4>
+                    <h2>{{ $totalAlbums }}</h2>
+                </div>
+            </div>
+        </div>
 
-                {{-- Admin bisa hapus foto --}}
-                <form action="{{ route('photos.destroy', $photo->id) }}" method="POST" style="display:inline;">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                </form>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <h4 class="mt-2">Total Komentar</h4>
+                    <h2>{{ $totalComments }}</h2>
+                </div>
+            </div>
+        </div>
 
-                {{-- Lihat detail foto & komentar --}}
-                <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-sm btn-primary">Lihat</a>
-            </td>
-        </tr>
-        @endforeach
-    </table>
+        <div class="col-md-4">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-hand-thumbs-up-fill"></i>
+                    <h4 class="mt-2">Total Like</h4>
+                    <h2>{{ $totalLikes }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-dark shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill"></i>
+                    <h4 class="mt-2">Total Pengguna</h4>
+                    <h2>{{ $totalUsers }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
