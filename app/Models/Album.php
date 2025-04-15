@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Album extends Model
 {
     use HasFactory;
-    
-    protected $table = 'albums'; // Sesuaikan dengan nama tabel di database
-    protected $fillable = ['name', 'description']; // Pastikan sesuai dengan kolom di tabel
+
+    protected $fillable = ['name', 'description'];
 
     public function photos()
     {

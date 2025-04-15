@@ -27,6 +27,25 @@ public function showWelcome()
     return view('Welcome',compact('photos'));
 }
 
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'role' => 'required|in:admin,user',
+        'password' => 'required|min:6|confirmed',
+    ]);
+
+    User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role,
+        'password' => Hash::make($request->password),
+    ]);
+
+    return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan');
+}
+
 }
 
 

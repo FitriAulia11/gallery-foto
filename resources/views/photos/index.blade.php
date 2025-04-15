@@ -7,6 +7,12 @@
         <p class="text-muted">Jelajahi dan bagikan foto terbaikmu</p>
     </div>
 
+    <!-- 🔍 Form Pencarian -->
+    <form method="GET" action="{{ route('photos.index') }}" class="mb-4 d-flex justify-content-center">
+        <input type="text" name="search" value="{{ request('search') }}" class="form-control w-50 me-2" placeholder="Cari berdasarkan judul, deskripsi, atau nama pengguna...">
+        <button type="submit" class="btn btn-primary">Cari</button>
+    </form>
+    
     @if($photos->isEmpty())
         <div class="alert alert-warning text-center">Belum ada foto yang diunggah.</div>
     @else
@@ -28,14 +34,16 @@
                              alt="Photo">
 
                         <div class="card-body d-flex justify-content-between">
+                            <!-- ❤️ Like Button -->
                             <form action="{{ route('photos.like', $photo->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn btn-light btn-sm like-button">
-                                    <i class="bi bi-hand-thumbs-up"></i>
+                                <button type="submit" class="btn btn-like btn-sm">
+                                    <i class="bi {{ $photo->likedByUser() ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
                                     <span class="like-count">{{ $photo->likes->count() }}</span>
                                 </button>
                             </form>
 
+                            <!-- 💬 Comment Button -->
                             <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm comment-button">
                                 <i class="bi bi-chat-dots"></i>
                                 <span class="comment-count">{{ $photo->comments->count() }}</span>
@@ -63,8 +71,8 @@
             <div class="modal-footer d-flex justify-content-between">
                 <form id="likeForm" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-outline-primary">
-                        <i class="bi bi-hand-thumbs-up"></i> Like
+                    <button type="submit" class="btn btn-like">
+                        <i class="bi bi-heart"></i> <span class="ms-1">Like</span>
                     </button>
                 </form>
                 <a href="#" id="commentLink" class="btn btn-outline-secondary">
@@ -77,6 +85,7 @@
 @endsection
 
 @section('scripts')
+<!-- Masonry Layout -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
 
 <script>
@@ -92,11 +101,40 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var grid = document.querySelector('.row');
     if (grid) {
-        var masonry = new Masonry(grid, {
+        new Masonry(grid, {
             itemSelector: '.col-md-3',
             percentPosition: true
         });
     }
 });
 </script>
+
+<!-- Style Like Button -->
+<style>
+    .btn-like {
+        background-color: white;
+        border: 1px solid #dc3545; /* Merah */
+        color: #dc3545;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-like:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-like .bi-heart-fill {
+        color: #dc3545 !important;
+    }
+
+    .btn-like .bi-heart {
+        color: #dc3545;
+    }
+
+    .like-count {
+        margin-left: 4px;
+    }
+</style>
 @endsection

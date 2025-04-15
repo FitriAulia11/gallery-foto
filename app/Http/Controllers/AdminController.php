@@ -14,12 +14,17 @@ class AdminController extends Controller
     public function index()
     {
         $totalPhotos = Photo::count();
-        $totalAlbums = Album::count();
         $totalComments = Comment::count();
         $totalLikes = Like::count();
         $totalUsers = User::count();
 
-        return view('admin.dashboard', compact('totalPhotos', 'totalAlbums', 'totalComments', 'totalLikes', 'totalUsers'));
+        return view('admin.dashboard', compact(
+            'totalPhotos', 
+            'totalComments', 
+            'totalLikes', 
+            'totalUsers'
+            
+        ));
     }
 
     public function destroyUser($id)

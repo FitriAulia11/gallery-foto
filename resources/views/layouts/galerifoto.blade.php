@@ -9,6 +9,8 @@
     <style>
         body {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
         }
 
         .sidebar {
@@ -19,6 +21,7 @@
             top: 0;
             left: 0;
             padding-top: 20px;
+            overflow-y: auto;
         }
 
         .sidebar a {
@@ -26,17 +29,19 @@
             padding: 10px 20px;
             display: block;
             text-decoration: none;
+            font-size: 18px;
         }
 
         .sidebar a:hover,
         .sidebar a.active {
-            background-color:rgb(25, 116, 207);
+            background-color: #495057;
             border-radius: 8px;
         }
 
         .main-content {
             margin-left: 250px;
             padding: 20px;
+            min-height: 100vh;
         }
 
         .card-body i {
@@ -46,6 +51,26 @@
         .card h2 {
             font-weight: bold;
         }
+
+        /* New style for images to display correctly */
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Adjusting the main content for better spacing */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -54,10 +79,7 @@
         <h4 class="text-white text-center mb-4">Admin Panel</h4>
         <a href="{{ route('admin.dashboard') }}" class="active"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
         <a href="{{ route('gallery.index') }}"><i class="bi bi-image-fill me-2"></i> Galeri Foto</a>
-        <a href="#"><i class="bi bi-image-fill me-2"></i>Foto</a>
-        <a href="#"><i class="bi bi-hand-thumbs-up-fill me-2"></i>Like</a>
-        <a href="#"><i class="bi bi-chat-dots-fill me-2"></i>Komentar</a>
-        <a href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>Pengguna</a>
+        <a href="#"><i class="bi bi-people-fill me-2"></i>Pengguna</a>
         <a href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
     </div>
 

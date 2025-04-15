@@ -59,7 +59,7 @@
             </ul>
             <div>
                 <a href="{{ route('login') }}" class="btn btn-primary me-2">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-outline-secondary">Register</a>
+                <a href="{{ route('register') }}" class="btn btn-outline-secondary">sign up</a>
             </div>
         </div>
     </div>
@@ -85,7 +85,6 @@
                         <div class="card h-100 shadow-sm border-0">
                             <img src="{{ asset('storage/' . $photo->image_path) }}" alt="{{ $photo->caption }}" class="card-img-top gallery-img">
                             <div class="card-body">
-                                <h6 class="card-title fw-semibold">{{ $photo->caption ?? 'Tanpa Judul' }}</h6>
                                 <p class="card-text text-muted">{{ Str::limit($photo->description, 60) }}</p>
                             </div>
                         </div>

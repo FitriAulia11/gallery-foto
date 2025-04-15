@@ -6,29 +6,32 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Photo;
 use App\Models\Like;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class PhotoController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Photo::with(['user', 'likes', 'comments']);
+{
+    $query = Photo::with(['user', 'likes', 'comments']);
+
+    if ($request->has('search')) {
+        $search = $request->search;
+
+        $query->where(function ($q) use ($search) {
+            $q->where('description', 'like', '%' . $search . '%')
+              ->orWhere('title', 'like', '%' . $search . '%') // pastikan kolom ini ada
+              ->orWhereHas('user', function ($userQuery) use ($search) {
+                  $userQuery->where('name', 'like', '%' . $search . '%');
+              });
+        });
+    }
+
+    $photos = $query->latest()->paginate(12);
+
+    return view('photos.index', compact('photos'));
+}
     
-        if ($request->has('search')) {
-            $search = $request->search;
-    
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', '%' . $search . '%')                   ->orWhereHas('user', function ($userQuery) use ($search) {
-                      $userQuery->where('name', 'like', '%' . $search . '%');
-                  });
-            });
-        }
-    
-        $photos = $query->latest()->get();
-    
-        return view('photos.index', compact('photos'));
-    }    
-            
 
     public function create()
     {
@@ -53,6 +56,7 @@ class PhotoController extends Controller
         Photo::create([
             'user_id' => Auth::id(), // Pastikan user login
             'image_path' => $imagePath, // Pastikan kolom ini ada di database
+            'file_path' => $imagePath, 
             'title' => $request->title,
             'description' => $request->description,
         ]);
@@ -67,28 +71,29 @@ class PhotoController extends Controller
         return view('photos.show', compact('photo'));
     }
 
-public function like(Photo $photo)
-{
-    $user = auth()->user();
-
-    if (!$user) {
-        return response()->json(['error' => 'Unauthorized'], 401);
+    public function like($id)
+    {
+        $photo = Photo::findOrFail($id);
+        $user = auth()->user();
+    
+        // Cek apakah pengguna sudah menyukai foto
+        $like = Like::where('photo_id', $photo->id)->where('user_id', $user->id)->first();
+    
+        if ($like) {
+            // Jika sudah like, lakukan unlike
+            $like->delete();
+            $liked = false;
+        } else {
+            // Jika belum like, lakukan like
+            $photo->likes()->create(['user_id' => $user->id]);
+            $liked = true;
+        }
+    
+        return response()->json([
+            'likes' => $photo->likes()->count(),
+            'liked' => $liked,
+        ]);
     }
-
-    $liked = $photo->likes()->where('user_id', $user->id)->exists();
-
-    if ($liked) {
-        $photo->likes()->where('user_id', $user->id)->delete();
-    } else {
-        $photo->likes()->create(['user_id' => $user->id]);
-    }
-
-    return response()->json([
-        'liked' => !$liked,
-        'likes' => $photo->likes()->count(),
-    ]);
-}
-
   
     public function toggleStatus($id)
 {
@@ -165,7 +170,10 @@ public function profile(User $user)
     return view('profile', compact('user', 'photos'));
 }
 
-
+public function __construct()
+{
+    $this->middleware('auth'); // memastikan hanya pengguna yang terautentikasi yang bisa mengakses
+}
 
 
 }

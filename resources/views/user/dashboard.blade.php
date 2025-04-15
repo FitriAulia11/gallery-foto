@@ -23,17 +23,16 @@
             Belum ada foto yang diunggah.
         </div>
     @else
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
             @foreach($photos as $photo)
-                <div class="col">
-                    <div class="card border-0 shadow rounded-4 h-100">
+                <div class="col mb-3">
+                    <div class="d-flex flex-column align-items-center">
                         <img 
                             src="{{ asset('storage/' . $photo->image_path) }}" 
                             alt="Photo"
-                            class="card-img-top preview-photo rounded-top-4"
-                            loading="lazy"
-                            style="cursor: pointer; transition: transform 0.2s, opacity 0.3s;"
-                            onmouseover="this.style.transform='scale(1.03)'; this.style.opacity='0.9';"
+                            class="img-fluid mb-3 preview-photo shadow-sm"
+                            style="cursor: pointer; object-fit: cover; border-radius: 15px; width: 100%; max-height: {{ rand(250, 350) }}px; transition: transform 0.3s ease, opacity 0.3s ease; margin-bottom: 10px;"
+                            onmouseover="this.style.transform='scale(1.05)'; this.style.opacity='0.9';"
                             onmouseout="this.style.transform='scale(1)'; this.style.opacity='1';"
                             data-bs-toggle="modal"
                             data-bs-target="#photoModal"
@@ -46,26 +45,9 @@
                             data-comment-count="{{ $photo->comments->count() }}"
                             data-is-liked="{{ $photo->likes->contains('user_id', auth()->id()) ? 'true' : 'false' }}"
                         >
-
-                        <div class="card-body text-center">
-                            <h6 class="fw-semibold mb-1">{{ $photo->caption ?? 'Tanpa Judul' }}</h6>
-                            <p class="text-muted small mb-2">👤 {{ $photo->user->name }}</p>
-                            <div class="d-flex justify-content-center gap-2">
-                                <!-- Tombol Like -->
-                                <form action="{{ route('photos.like', $photo->id) }}" method="POST" class="like-form">
-                                    @csrf
-                                    <button type="submit" class="btn btn-light btn-sm like-button">
-                                        <i class="bi {{ $photo->likes->contains('user_id', auth()->id()) ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
-                                        <span class="like-count">{{ $photo->likes->count() }}</span>
-                                    </button>
-                                </form>
-                                <!-- Tombol Komentar -->
-                                <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-light btn-sm">
-                                    <i class="bi bi-chat-dots"></i>
-                                    <span class="comment-count">{{ $photo->comments->count() }}</span>
-                                </a>
-                            </div>
-                        </div>
+                        @if($photo->caption)
+                            <h6 class="fw-semibold mb-1 text-center" style="font-size: {{ rand(16, 20) }}px; color: #333;">{{ $photo->caption }}</h6>
+                        @endif
                     </div>
                 </div>
             @endforeach
@@ -84,17 +66,31 @@
             <div class="modal-body text-center">
                 <img id="modalPhoto" class="img-fluid rounded-4 shadow mb-3" style="max-height: 400px; object-fit: cover;" alt="Preview">
                 <p class="fw-bold mb-1" id="photoCaption"></p>
-                <p class="text-muted small" id="photoUser"></p>
+                <p class="text-muted small" id="photoUser" style="display: none;"></p>
+                <p class="text-muted small mt-3">
+                    <i class="bi bi-person"></i> <strong>{{ $photo->user->name }}</strong>
+               </p>
             </div>
             <div class="modal-footer justify-content-center">
-                <span class="me-2 fs-6" id="likeCount"></span>
-                <button type="button" class="btn btn-outline-danger btn-sm d-flex align-items-center" id="modalLikeButton">
-                    <i id="likeIcon" class="bi bi-heart me-1"></i> Suka
-                </button>
-                <span class="ms-3 me-2 fs-6" id="commentCount"></span>
-                <a href="#" id="commentLink" class="btn btn-outline-secondary btn-sm d-flex align-items-center">
-                    <i class="bi bi-chat-dots me-1"></i> Komentar
-                </a>
+                <div class="d-flex gap-4 align-items-center">
+                <span class="me-2 fs-6">
+             Like : <span>{{ $photo->likes->count() }}</span>
+                  </span>
+
+                    <form method="POST" action="{{ route('photos.like', $photo->id) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-sm {{ $photo->likes->contains('user_id', auth()->id()) ? 'btn-danger' : 'btn-outline-danger' }}">
+                            <i class="bi bi-heart{{ $photo->likes->contains('user_id', auth()->id()) ? '-fill' : '' }}"></i> 
+                            <span>{{ $photo->likes->count() }}</span>
+                        </button>
+                    </form>
+                    <span class="ms-3 me-2 fs-6">
+                    Komentar : <span>{{ $photo->comments->count() }}</span>
+                         </span>
+                         <a href="{{ route('photos.show', $photo->id) }}" id="commentLink" class="btn btn-outline-secondary btn-sm">
+                         <i class="bi bi-chat-dots"></i>
+                       </a>
+                </div>
             </div>
         </div>
     </div>
@@ -104,43 +100,55 @@
 @section('scripts')
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    const modalPhoto = document.getElementById("modalPhoto");
+    const photoCaption = document.getElementById("photoCaption");
+    const photoUser = document.getElementById("photoUser");
+    const likeCount = document.getElementById("likeCount");
+    const commentCount = document.getElementById("commentCount");
+    const likeIcon = document.getElementById("likeIcon");
+    const modalLikeButton = document.getElementById("modalLikeButton");
+    const commentLink = document.getElementById("commentLink");
+
     document.querySelectorAll(".preview-photo").forEach(photo => {
         photo.addEventListener("click", function () {
-            const modalPhoto = document.getElementById("modalPhoto");
-            const photoCaption = document.getElementById("photoCaption");
-            const photoUser = document.getElementById("photoUser");
-            const likeCount = document.getElementById("likeCount");
-            const commentCount = document.getElementById("commentCount");
-            const likeIcon = document.getElementById("likeIcon");
-            const modalLikeButton = document.getElementById("modalLikeButton");
-            const commentLink = document.getElementById("commentLink");
-
+            // Set data ke modal
             modalPhoto.src = this.dataset.src;
+            modalPhoto.dataset.likeUrl = this.dataset.likeUrl; // penting!
             photoCaption.textContent = this.dataset.caption;
             photoUser.textContent = "👤 " + this.dataset.user;
             likeCount.textContent = this.dataset.likeCount + " suka";
             commentCount.textContent = this.dataset.commentCount + " komentar";
             commentLink.href = this.dataset.commentUrl;
 
+            // Update ikon
             const isLiked = this.dataset.isLiked === "true";
             likeIcon.className = isLiked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
 
-            modalLikeButton.onclick = () => {
-                fetch(this.dataset.likeUrl, {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({})
-                })
-                .then(res => res.json())
-                .then(data => {
-                    likeCount.textContent = data.likes + " suka";
-                    likeIcon.className = data.liked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
-                });
-            };
+            // Tampilkan elemen
+            photoUser.style.display = "block";
+            likeCount.style.display = "inline";
+            modalLikeButton.style.display = "inline";
+            commentCount.style.display = "inline";
+            commentLink.style.display = "inline";
         });
+    });
+
+    modalLikeButton.addEventListener("click", function () {
+        const likeUrl = modalPhoto.dataset.likeUrl;
+
+        fetch(likeUrl, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                "Accept": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            likeCount.textContent = data.likes + " suka";
+            likeIcon.className = data.liked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
+        })
+        .catch(err => console.error("Gagal Like:", err));
     });
 });
 </script>

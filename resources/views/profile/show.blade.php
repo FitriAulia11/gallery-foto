@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <!-- Tombol Tambah Foto (Hanya untuk pemilik) -->
+    <!-- Tombol Tambah Foto -->
     @if(Auth::id() == $user->id)
     <div class="text-center mb-4">
         <a href="{{ route('photos.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
@@ -52,22 +52,15 @@
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <img 
                     src="{{ asset('storage/' . $photo->image_path) }}" 
-                    class="card-img-top rounded-top-4" 
-                    style="height: 200px; object-fit: cover; cursor: pointer;"
-                    data-bs-toggle="modal"
-                    data-bs-target="#photoModal"
-                    data-src="{{ asset('storage/' . $photo->image_path) }}"
-                    data-caption="{{ $photo->caption }}"
-                    data-user="{{ $photo->user->name }}"
-                    data-like-url="{{ route('photos.like', $photo->id) }}"
-                    data-comment-url="{{ route('photos.show', $photo->id) }}"
-                    data-like-count="{{ $photo->likes->count() }}"
-                    data-comment-count="{{ $photo->comments->count() }}"
-                    data-is-liked="{{ $photo->likes->contains('user_id', auth()->id()) ? 'true' : 'false' }}"
-                >
-
+                    alt="Foto"
+                    class="card-img-top rounded-top-4"
+                    style="height: 430px; object-fit: cover; cursor: pointer;"
+                    onclick="showImageModal('{{ asset('storage/' . $photo->image_path) }}')"
+                />
                 <div class="card-body text-center">
-                    <h6 class="fw-semibold mb-2">{{ $photo->caption ?? 'Tanpa Judul' }}</h6>
+                    <h6 class="fw-semibold mb-0" title="Diunggah: {{ $photo->created_at->format('d M Y, H:i') }}">
+                        {{ $photo->caption ?? 'Tanpa Judul' }}
+                    </h6>
                 </div>
 
                 <div class="card-footer bg-white border-top text-center">
@@ -79,17 +72,17 @@
                         </button>
                     </form>
 
-                    <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-outline-secondary btn-sm ms-2">
+                    <a href="{{ route('photos.show', $photo->id) }}" class="btn btn-outline-secondary btn-sm mt-2 ms-2">
                         <i class="bi bi-chat-dots"></i> {{ $photo->comments->count() }}
                     </a>
 
                     @if(Auth::id() == $photo->user_id || Auth::user()->role == 'admin')
-                    <a href="{{ route('photos.edit', $photo->id) }}" class="btn btn-warning btn-sm ms-2">
+                    <a href="{{ route('photos.edit', $photo->id) }}" class="btn btn-warning btn-sm ms-2 mt-2">
                         <i class="bi bi-pencil"></i>
                     </a>
                     <form action="{{ route('photos.destroy', $photo->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus foto ini?')">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm ms-2">
+                        <button type="submit" class="btn btn-danger btn-sm ms-2 mt-2">
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>
@@ -102,4 +95,31 @@
     @endif
 
 </div>
+
+<!-- Modal Preview Foto -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="photoModalLabel">Preview Foto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" class="img-fluid rounded-3 w-100" style="max-height: 600px; object-fit: contain;">
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
+
+@push('scripts')
+<script>
+  function showImageModal(imageUrl) {
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = imageUrl;
+
+    const modal = new bootstrap.Modal(document.getElementById('photoModal'));
+    modal.show();
+  }
+</script>
+@endpush

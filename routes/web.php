@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 use App\Http\Controllers\{LikeController, PhotoController, AdminController, UserController, CommentController};
 use App\Http\Controllers\WelcomeController;
 use App\Models\Photo;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -30,6 +33,10 @@ Auth::routes();
 // Redirect setelah login
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::resource('users', UserController::class);
+});
 
 // Middleware untuk autentikasi
 Route::middleware(['auth'])->group(function () {
@@ -86,6 +93,13 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/', [WelcomeController::class, 'index']);
 
+
+
+// Route untuk halaman galeri foto
+
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+Route::get('/gallery/search', [GalleryController::class, 'search'])->name('gallery.search');
+Route::post('/photos/{photo}/like', [GalleryController::class, 'like'])->name('photos.like');
 
 // Logout
 Route::get('/logout', function (Request $request) {
