@@ -27,5 +27,16 @@ class CommentController extends Controller
 {
     $this->middleware('auth');
 }
+public function destroy(Comment $comment)
+{
+    // Cek apakah user yang login adalah pemilik komentar
+    if (auth()->id() !== $comment->user_id) {
+        return back()->with('error', 'Tidak punya izin untuk menghapus komentar ini.');
+    }
+
+    $comment->delete();
+    return back()->with('success', 'Komentar berhasil dihapus.');
+}
+
 
 }

@@ -59,7 +59,7 @@
                 />
                 <div class="card-body text-center">
                     <h6 class="fw-semibold mb-0" title="Diunggah: {{ $photo->created_at->format('d M Y, H:i') }}">
-                        {{ $photo->caption ?? 'Tanpa Judul' }}
+                        {{ $photo->caption ?? 'Gallery' }}
                     </h6>
                 </div>
 

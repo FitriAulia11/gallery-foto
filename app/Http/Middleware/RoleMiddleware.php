@@ -16,10 +16,10 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, $role)
     {
-        if (Auth::check() && Auth::user()->role == $role) {
-            return $next($request);
+        if (!auth()->user() || !auth()->user()->hasRole($role)) {
+            // Redirect atau error jika role tidak sesuai
+            return redirect('/home')->with('error', 'You do not have access to this page.');
         }
 
-        return abort(403, 'Unauthorized action.');
-    }
-}
+        return $next($request);
+    }}

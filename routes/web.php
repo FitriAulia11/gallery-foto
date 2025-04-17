@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\PenggunaController;
 use App\Http\Controllers\{LikeController, PhotoController, AdminController, UserController, CommentController};
 use App\Http\Controllers\WelcomeController;
 use App\Models\Photo;
@@ -34,9 +34,6 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::resource('users', UserController::class);
-});
 
 // Middleware untuk autentikasi
 Route::middleware(['auth'])->group(function () {
@@ -54,6 +51,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard-user/photos', [PhotoController::class, 'index'])->name('photos.index');
 
     });
+    Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+        Route::get('/pengguna', [AdminController::class, 'showUsers'])->name('admin.pengguna.index');
+        Route::get('/pengguna/{id}/edit', [AdminController::class, 'editUser'])->name('admin.pengguna.edit');
+        Route::put('/pengguna/{id}', [AdminController::class, 'updateUser'])->name('admin.pengguna.update');
+        Route::delete('/pengguna/{id}', [AdminController::class, 'destroyUser'])->name('admin.pengguna.destroy');
+        Route::get('/pengguna/create',         [AdminController::class, 'createPengguna'])->name('admin.pengguna.create');
+    Route::post('/pengguna',               [AdminController::class, 'storePengguna'])->name('admin.pengguna.store');
+      });
 
     // Routes untuk admin
     Route::middleware(['role:admin'])->group(function () {
@@ -61,8 +66,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
         Route::patch('/photos/{id}/toggle', [PhotoController::class, 'toggleStatus'])->name('photos.toggle');
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    });
+        Route::get('/admin/likes', [AdminController::class, 'likesChart'])->name('admin.likes');
+        Route::get('/admin/comments', [AdminController::class, 'commentsChart'])->name('admin.comments');
+        Route::get('/admin/photos', [AdminController::class, 'photosChart'])->name('admin.photos'); // Pastikan ini ada
 
+    });
+    
     // Routes untuk Foto
     Route::prefix('photos')->name('photos.')->group(function () {
         Route::get('/', [PhotoController::class, 'index'])->name('index');
@@ -88,12 +97,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Routes untuk Komentar
     Route::post('/photo/{id}/comment', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
 });
 
 
 Route::get('/', [WelcomeController::class, 'index']);
 
-
+Route::resource('pengguna', PenggunaController::class)->middleware('auth', 'role:admin');
 
 // Route untuk halaman galeri foto
 

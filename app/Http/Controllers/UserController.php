@@ -46,6 +46,7 @@ public function store(Request $request)
     return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan');
 }
 
+
 }
 
 

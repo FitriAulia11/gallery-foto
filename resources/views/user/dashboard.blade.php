@@ -67,29 +67,23 @@
                 <img id="modalPhoto" class="img-fluid rounded-4 shadow mb-3" style="max-height: 400px; object-fit: cover;" alt="Preview">
                 <p class="fw-bold mb-1" id="photoCaption"></p>
                 <p class="text-muted small" id="photoUser" style="display: none;"></p>
-                <p class="text-muted small mt-3">
-                    <i class="bi bi-person"></i> <strong>{{ $photo->user->name }}</strong>
-               </p>
             </div>
             <div class="modal-footer justify-content-center">
                 <div class="d-flex gap-4 align-items-center">
-                <span class="me-2 fs-6">
-             Like : <span>{{ $photo->likes->count() }}</span>
-                  </span>
+                    <span class="me-2 fs-6">
+                        Like : <span id="likeCount"></span>
+                    </span>
 
-                    <form method="POST" action="{{ route('photos.like', $photo->id) }}">
-                        @csrf
-                        <button type="submit" class="btn btn-sm {{ $photo->likes->contains('user_id', auth()->id()) ? 'btn-danger' : 'btn-outline-danger' }}">
-                            <i class="bi bi-heart{{ $photo->likes->contains('user_id', auth()->id()) ? '-fill' : '' }}"></i> 
-                            <span>{{ $photo->likes->count() }}</span>
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="modalLikeButton">
+                        <i class="bi" id="likeIcon"></i> 
+                    </button>
+
                     <span class="ms-3 me-2 fs-6">
-                    Komentar : <span>{{ $photo->comments->count() }}</span>
-                         </span>
-                         <a href="{{ route('photos.show', $photo->id) }}" id="commentLink" class="btn btn-outline-secondary btn-sm">
-                         <i class="bi bi-chat-dots"></i>
-                       </a>
+                        Komentar : <span id="commentCount"></span>
+                    </span>
+                    <a href="#" id="commentLink" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-chat-dots"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -113,11 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
         photo.addEventListener("click", function () {
             // Set data ke modal
             modalPhoto.src = this.dataset.src;
-            modalPhoto.dataset.likeUrl = this.dataset.likeUrl; // penting!
+            modalPhoto.dataset.likeUrl = this.dataset.likeUrl;
             photoCaption.textContent = this.dataset.caption;
             photoUser.textContent = "👤 " + this.dataset.user;
-            likeCount.textContent = this.dataset.likeCount + " suka";
-            commentCount.textContent = this.dataset.commentCount + " komentar";
+            likeCount.textContent = this.dataset.likeCount;
+            commentCount.textContent = this.dataset.commentCount;
             commentLink.href = this.dataset.commentUrl;
 
             // Update ikon
@@ -126,10 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Tampilkan elemen
             photoUser.style.display = "block";
-            likeCount.style.display = "inline";
-            modalLikeButton.style.display = "inline";
-            commentCount.style.display = "inline";
-            commentLink.style.display = "inline";
         });
     });
 
@@ -145,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(res => res.json())
         .then(data => {
-            likeCount.textContent = data.likes + " suka";
+            likeCount.textContent = data.likes;
             likeIcon.className = data.liked ? "bi bi-heart-fill text-danger me-1" : "bi bi-heart me-1";
         })
         .catch(err => console.error("Gagal Like:", err));

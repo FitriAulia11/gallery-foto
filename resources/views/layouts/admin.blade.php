@@ -52,12 +52,12 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h4 class="text-white text-center mb-4">Admin Panel</h4>
-        <a href="{{ route('admin.dashboard') }}" class="active"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+        <a href="{{ route('admin.dashboard') }}" ><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
         <a href="{{ route('gallery.index') }}"><i class="bi bi-image-fill me-2"></i> Galeri Foto</a>
-        <a href="#"><i class="bi bi-image-fill me-2"></i>Foto</a>
-        <a href="#"><i class="bi bi-hand-thumbs-up-fill me-2"></i>Like</a>
-        <a href="#"><i class="bi bi-chat-dots-fill me-2"></i>Komentar</a>
-        <a href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>Pengguna</a>
+        <a href="{{ route('admin.likes') }}"><i class="bi bi-hand-thumbs-up-fill me-2"></i>Like</a>
+        <a href="{{ route('admin.comments') }}"><i class="bi bi-chat-dots-fill me-2"></i>Komentar</a>
+        <a href="{{ route('admin.photos') }}"><i class="bi bi-image-fill me-2"></i>Foto</a>
+        <a href="{{ route('admin.pengguna.index') }}"><i class="bi bi-people-fill me-2"></i>Pengguna</a>
         <a href="{{ route('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
     </div>
 
