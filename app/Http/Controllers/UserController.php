@@ -7,12 +7,41 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $photos = Photo::where('user_id', auth()->id())->get();
-        return view('user.dashboard', compact('photos'));
-    }
+        $query = Photo::with(['user', 'likes', 'comments']); // Memuat relasi user, likes, dan comments
+    
+        // Pencarian berdasarkan caption atau nama pengguna
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', '%' . $search . '%')
+                  ->orWhere('title', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+    
 
+
+        $activeCategory = null;
+        if ($request->filled('category')) {
+            $categorySlug = $request->category;
+            $query->where('category', $categorySlug);
+            
+            $activeCategory = (object)[
+                'name' => ucwords(str_replace('-', ' ', $categorySlug))
+            ];
+        }
+        
+        // Menambahkan paginasi dengan 12 foto per halaman
+        $photos = $query->latest()->paginate(12); 
+    
+        // Mengembalikan ke view dengan data photos
+        return view('photos.index', compact('photos'));
+    }
+    
     public function showProfile($id)
 {
     $user = User::findOrFail($id);

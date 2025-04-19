@@ -14,6 +14,7 @@ class AdminController extends Controller
 {
     public function index()
     {
+        
         $totalPhotos = Photo::count();
         $totalComments = Comment::count();
         $totalLikes = Like::count();

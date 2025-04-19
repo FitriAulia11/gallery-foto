@@ -10,6 +10,7 @@
             <form action="{{ route('photos.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
+                <!-- Judul Foto -->
                 <div class="mb-3">
                     <label for="title" class="form-label fw-bold">Judul Foto</label>
                     <input type="text" id="title" name="title" class="form-control @error('title') is-invalid @enderror" placeholder="Masukkan judul foto" value="{{ old('title') }}">
@@ -18,6 +19,7 @@
                     @enderror
                 </div>
 
+                <!-- Deskripsi Foto -->
                 <div class="mb-3">
                     <label for="description" class="form-label fw-bold">Deskripsi</label>
                     <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" rows="3" placeholder="Tambahkan deskripsi foto">{{ old('description') }}</textarea>
@@ -26,6 +28,24 @@
                     @enderror
                 </div>
 
+<!-- Kategori Foto -->
+<div class="mb-3">
+    <label for="category_id" class="form-label fw-bold">Kategori</label>
+    <select id="category_id" name="category_id" class="form-control @error('category_id') is-invalid @enderror">
+    <option value="">Pilih Kategori</option>
+    @foreach($categories as $category)
+    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+        {{ $category->name }}
+    </option>
+@endforeach
+
+</select>
+    @error('category_id')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+                <!-- Pilih Foto -->
                 <div class="mb-3">
                     <label for="image" class="form-label fw-bold">Pilih Foto</label>
                     <input type="file" id="image" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*" required>
@@ -37,6 +57,7 @@
                     </div>
                 </div>
 
+                <!-- Tombol Submit -->
                 <button type="submit" class="btn btn-success">
                     <i class="bi bi-upload"></i> Upload
                 </button>

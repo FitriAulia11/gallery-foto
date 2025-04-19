@@ -33,18 +33,30 @@
 <!-- Main Content -->
 <div class="main-content container">
     <!-- Header -->
-    <div class="text-center mb-5 py-3" style="background: linear-gradient(to right, #6a11cb, #2575fc); border-radius: 10px;">
-        <h2 class="fw-bold text-white display-4 mb-3">📸 Galeri Foto</h2>
-        <p class="text-white-50 fs-4">Semua foto yang diunggah oleh pengguna. Jelajahi dan temukan gambar menarik!</p>
+    <div class="text-center mb-4 py-4 px-3 shadow-sm"
+         style="background: linear-gradient(135deg, #fcd5ce, #cdb4db); border-radius: 16px;">
+        <h3 class="fw-bold text-white mb-2" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">
+            🎀📸 Galeri Foto 🦋
+        </h3>
+        <p class="text-white small mb-0" style="max-width: 600px; margin: auto; text-shadow: 1px 1px 1px rgba(0,0,0,0.1);">
+            Temukan momen manis dan indah dari pengguna lain. Yuk upload juga dan hiasi galeri dengan karyamu 🎨💖
+        </p>
     </div>
+</div>
 
     <!-- Tombol Tambah -->
-    <div class="text-center mb-4">
-        <a href="{{ route('photos.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-            <i class="bi bi-plus-circle me-2"></i> Tambah Foto
-        </a>
-    </div>
-
+    <div class="d-flex justify-content-center mb-5">
+    <a href="{{ route('photos.create') }}" class="text-decoration-none">
+        <div class="card shadow-sm border-0"
+             style="width: 250px; background: linear-gradient(135deg, #ffd6e0, #d0e6ff); border-radius: 16px; transition: transform 0.3s ease;">
+            <div class="card-body text-center py-3 px-3">
+                <i class="bi bi-plus-circle-fill" style="font-size: 1.8rem; color: #6a11cb;"></i>
+                <h6 class="mt-2 fw-semibold text-dark mb-1">Tambah Foto Baru</h6>
+                <p class="text-muted mb-0 small">Upload momen terbaikmu!</p>
+            </div>
+        </div>
+    </a>
+</div>
     <!-- Galeri Foto -->
     @if($photos->isEmpty())
         <div class="alert alert-warning text-center rounded-3">

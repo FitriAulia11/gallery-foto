@@ -3,12 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Controllers\PenggunaController;
-use App\Http\Controllers\{LikeController, PhotoController, AdminController, UserController, CommentController};
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\{LikeController, PhotoController, AdminController, UserController, CommentController};
 use App\Models\Photo;
 use App\Http\Controllers\GalleryController;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PenggunaController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,30 +22,26 @@ use App\Http\Controllers\HomeController;
 |
 */
 
-// Halaman Utama
 Route::get('/welcome', function () {
-    $photos = Photo::latest()->take(8)->get(); // Misal ambil 8 foto terbaru
+    $photos = Photo::latest()->take(8)->get(); 
     return view('welcome', compact('photos'));
 })->name('welcome');
 
-// Autentikasi
 Auth::routes();
 
-// Redirect setelah login
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [WelcomeController::class, 'index']);
 
 
 
-// Middleware untuk autentikasi
 Route::middleware(['auth'])->group(function () {
-    // Redirect berdasarkan role user
     Route::get('/dashboard', function () {
         return auth()->user()->role === 'admin' 
             ? redirect()->route('admin.dashboard') 
             : redirect()->route('user.dashboard');
     })->name('dashboard');
 
-    // Routes untuk pengguna (User)
+
     Route::middleware(['role:user'])->group(function () {
         Route::get('/user', [UserController::class, 'index'])->name('user.dashboard');
         Route::get('/profile/{id}', [UserController::class, 'showProfile'])->name('profile.show');
@@ -55,12 +52,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengguna', [AdminController::class, 'showUsers'])->name('admin.pengguna.index');
         Route::get('/pengguna/{id}/edit', [AdminController::class, 'editUser'])->name('admin.pengguna.edit');
         Route::put('/pengguna/{id}', [AdminController::class, 'updateUser'])->name('admin.pengguna.update');
-        Route::delete('/pengguna/{id}', [AdminController::class, 'destroyUser'])->name('admin.pengguna.destroy');
-        Route::get('/pengguna/create',         [AdminController::class, 'createPengguna'])->name('admin.pengguna.create');
-    Route::post('/pengguna',               [AdminController::class, 'storePengguna'])->name('admin.pengguna.store');
+        Route::delete('/pengguna/{id}',[AdminController::class, 'destroyUser'])->name('admin.pengguna.destroy');
+        Route::get('/pengguna/create',[AdminController::class, 'createPengguna'])->name('admin.pengguna.create');
+    Route::post('/pengguna',[AdminController::class, 'storePengguna'])->name('admin.pengguna.store');
       });
 
-    // Routes untuk admin
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::delete('/admin/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
@@ -68,11 +64,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/admin/likes', [AdminController::class, 'likesChart'])->name('admin.likes');
         Route::get('/admin/comments', [AdminController::class, 'commentsChart'])->name('admin.comments');
-        Route::get('/admin/photos', [AdminController::class, 'photosChart'])->name('admin.photos'); // Pastikan ini ada
+        Route::get('/admin/photos', [AdminController::class, 'photosChart'])->name('admin.photos'); 
 
     });
     
-    // Routes untuk Foto
     Route::prefix('photos')->name('photos.')->group(function () {
         Route::get('/', [PhotoController::class, 'index'])->name('index');
         Route::get('/create', [PhotoController::class, 'create'])->name('create');
@@ -83,36 +78,37 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/user', [PhotoController::class, 'user'])->name('user');
         Route::get('/{photo}', [PhotoController::class, 'show'])->name('show');
         Route::post('/photos/{photo}/comments', [PhotoCommentController::class, 'store'])->name('photos.comments');
-
+        Route::get('/photos/create', [PhotoController::class, 'create'])->name('photos.create');
+        Route::post('/photos', [PhotoController::class, 'store'])->name('photos.store');
         Route::post('/photos/{photo}/like', [PhotoController::class, 'like'])->name('photos.like');
         Route::get('/', [PhotoController::class, 'showWelcome']);
         Route::get('/dashboard-user/photos', [PhotoController::class, 'index'])->name('photos.index');
+        Route::get('/kategori/{id}', [PhotoController::class, 'byCategory'])->name('photos.byCategory');
+        Route::get('/kategori/{nama}', [KategoriController::class, 'show']);
+
     });
 
-    // Routes untuk Like
     Route::prefix('photos/{id}')->group(function () {
         Route::post('/like', [LikeController::class, 'like'])->name('photos.like');
         Route::get('/likes', [LikeController::class, 'getLikes'])->name('photos.likes');
     });
 
-    // Routes untuk Komentar
     Route::post('/photo/{id}/comment', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
 });
 
 
-Route::get('/', [WelcomeController::class, 'index']);
 
 Route::resource('pengguna', PenggunaController::class)->middleware('auth', 'role:admin');
 
-// Route untuk halaman galeri foto
 
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
 Route::get('/gallery/search', [GalleryController::class, 'search'])->name('gallery.search');
 Route::post('/photos/{photo}/like', [GalleryController::class, 'like'])->name('photos.like');
 
-// Logout
+
+
 Route::get('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();

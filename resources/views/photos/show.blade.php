@@ -9,30 +9,35 @@
             <img src="{{ asset('storage/' . $photo->image_path) }}" class="rounded img-fluid w-75 shadow">
         </div>
 
-        <!-- Info & Komentar -->
-        <div class="col-md-5">
-            <!-- Tombol Like -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <form action="{{ route('photos.like', $photo->id) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center">
-                        @if ($photo->likes->where('user_id', auth()->id())->count() > 0)
-                            <i class="fas fa-heart text-danger fs-4"></i>
-                            <span class="ms-2 text-danger fs-5">Unlike</span>
-                        @else
-                            <i class="far fa-heart text-dark fs-4"></i>
-                            <span class="ms-2 text-dark fs-5">Like</span>
-                        @endif
-                        <span class="ms-2 text-muted fs-5">({{ $photo->likes->count() }})</span>
-                    </button>
-                </form>
-            </div>
+<!-- Info & Komentar -->
+<div class="col-md-5">
+    <!-- Nama Pengguna dengan Ikon -->
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-user-circle text-primary fs-3"></i> <!-- Ikon Pengguna -->
+        <span class="fw-semibold fs-5 ms-2">{{ $photo->user->name ?? 'Pengguna' }}</span>
+    </div>
 
-            <!-- Nama Pengguna -->
-            <div class="d-flex align-items-center mt-3">
-                <span class="fw-semibold fs-5">{{ $photo->user->name ?? 'Pengguna' }}</span>
-            </div>
+    <!-- Komentar -->
+    <div class="mb-3">
+        <p class="fs-6 text-muted">Komentar pengguna di sini...</p>
+    </div>
 
+    <!-- Tombol Like di Samping Komentar -->
+    <div class="d-flex align-items-center">
+        <form action="{{ route('photos.like', $photo->id) }}" method="POST">
+            @csrf
+            <button type="submit" class="border-0 bg-transparent p-0 d-flex align-items-center">
+                @if ($photo->likes->where('user_id', auth()->id())->count() > 0)
+                    <i class="fas fa-heart text-danger fs-4"></i>
+                    <span class="ms-2 text-danger fs-5">Unlike</span>
+                @else
+                    <i class="far fa-heart text-dark fs-4"></i>
+                    <span class="ms-2 text-dark fs-5">Like</span>
+                @endif
+                <span class="ms-2 text-muted fs-5">({{ $photo->likes->count() }})</span>
+            </button>
+        </form>
+    </div>
             <!-- Jumlah Komentar -->
             <div class="d-flex align-items-center my-3">
                 <i class="fas fa-comment text-secondary fs-5"></i>

@@ -68,12 +68,16 @@
                 <p class="fw-bold mb-1" id="photoCaption"></p>
                 <p class="text-muted small" id="photoUser" style="display: none;"></p>
             </div>
-            <div class="modal-footer justify-content-center">
-                <div class="d-flex gap-4 align-items-center">
-                    <span class="me-2 fs-6">
-                        Like : <span id="likeCount"></span>
-                    </span>
-
+            <div class="card-body d-flex justify-content-between">
+                            <!-- ❤️ Like Button -->
+                            <form action="{{ route('photos.like', $photo->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-like btn-sm">
+                                    <i class="bi {{ $photo->likedByUser() ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
+                                    <span class="like-count">{{ $photo->likes->count() }}</span>
+                                </button>
+                            </form>
+                            
                     <button type="button" class="btn btn-sm btn-outline-danger" id="modalLikeButton">
                         <i class="bi" id="likeIcon"></i> 
                     </button>

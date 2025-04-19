@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->nullable(); // cukup satu kali
+            $table->string('title')->nullable();
             $table->text('description')->nullable();
-            $table->string('image_path'); // path file untuk ditampilkan
-            $table->string('file_path');   // simpan nama file (boleh pakai satu dari dua ini)
+            $table->string('image_path');
+            $table->string('file_path');   
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->boolean('status')->default(true); // aktif/nonaktif oleh admin
 

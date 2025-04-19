@@ -40,32 +40,52 @@
 </head>
 <body>
 
-@if (!request()->routeIs('login') && !request()->routeIs('register'))
+<!-- Navbar hanya muncul jika halaman bukan upload foto -->
+@if (!request()->routeIs('photos.create'))
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
     <div class="container">
-        <a class="navbar-brand fw-bold text-primary me-auto" href="{{ route('dashboard') }}">Gallery</a>
+        {{-- Logo / Brand --}}
+        <a class="navbar-brand fw-bold text-primary" href="{{ route('dashboard') }}">Gallery</a>
 
-        @auth
-        <ul class="navbar-nav ms-auto">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                    👤 {{ Auth::user()->name }}
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}"><i class="bi bi-person-circle"></i> Profil</a></li>
-                    <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bi bi-grid"></i> Dashboard</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </li>
+      
+
+<ul class="navbar-nav ms-3">
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle fw-bold" href="#" id="kategoriDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Kategori
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="kategoriDropdown">
+            @foreach($categories as $category)
+                <li><a class="dropdown-item" href="{{ route('photos.index', ['category' => $category->id]) }}">{{ $category->name }}</a></li>
+            @endforeach
         </ul>
-        @endauth
+    </li>
+</ul>
 
+
+
+        {{-- Spacer biar dropdown user ke kanan --}}
+        <div class="ms-auto">
+            @auth
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        👤 {{ Auth::user()->name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('profile.show', Auth::user()->id) }}"><i class="bi bi-person-circle"></i> Profil</a></li>
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}"><i class="bi bi-grid"></i> Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            @endauth
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>

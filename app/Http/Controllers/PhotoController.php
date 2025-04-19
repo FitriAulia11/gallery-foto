@@ -1,66 +1,81 @@
 <?php
+
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Http\Request;
 use App\Models\Photo;
 use App\Models\Like;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Category;
 
 class PhotoController extends Controller
 {
     public function index(Request $request)
-{
-    $query = Photo::with(['user', 'likes', 'comments']);
-
-    if ($request->has('search')) {
-        $search = $request->search;
-
-        $query->where(function ($q) use ($search) {
-            $q->where('description', 'like', '%' . $search . '%')
-              ->orWhere('title', 'like', '%' . $search . '%') // pastikan kolom ini ada
-              ->orWhereHas('user', function ($userQuery) use ($search) {
-                  $userQuery->where('name', 'like', '%' . $search . '%');
-              });
-        });
-    }
-
-    $photos = $query->latest()->paginate(12);
-
-    return view('photos.index', compact('photos'));
-}
-    
-
-    public function create()
     {
-        return view('photos.create'); 
+        $query = Photo::with(['user', 'likes', 'comments', 'category']); 
+       
+        if ($request->has('search')) {
+            $search = $request->search;
+    
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%') 
+                  ->orWhere('description', 'like', '%' . $search . '%') 
+                  ->orWhereHas('user', function ($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%'); 
+                  })
+                  ->orWhereHas('category', function ($catQuery) use ($search) {
+                      $catQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+    
+        
+        if ($request->filled('category')) {
+            $categoryId = $request->category;
+    
+            
+            $activeCategory = Category::find($categoryId);
+    
+            if ($activeCategory) {
+                $query->where('category_id', $categoryId);
+            }
+        }
+        $photos = $query->latest()->paginate(12);
+    
+        $activeCategory = $request->category ? \App\Models\Category::find($request->category) : null;
+    
+        return view('photos.index', compact('photos', 'activeCategory'));
     }
+        
+public function create()
+{
+    $categories = Category::all();
+    return view('photos.create', compact('categories'));
+}
+
 
     public function store(Request $request)
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:500'
+            'description' => 'nullable|string|max:500',
+            'category_id' => 'required|exists:categories,id',
         ]);
     
-        // Simpan file ke storage
         $imageName = time() . '.' . $request->image->extension();
-        $imagePath = 'photos/' . $imageName; // Tambahkan path
+        $imagePath = 'photos/' . $imageName; 
     
         $request->image->storeAs('public/photos', $imageName);
-    
-        // Simpan ke database
         Photo::create([
-            'user_id' => Auth::id(), // Pastikan user login
-            'image_path' => $imagePath, // Pastikan kolom ini ada di database
-            'file_path' => $imagePath, 
+            'user_id' => Auth::id(),
+            'image_path' => $imagePath,
+            'file_path' => $imagePath,
             'title' => $request->title,
             'description' => $request->description,
+            'category_id' => $request->category_id
         ]);
-    
         return redirect()->route('user.dashboard')->with('success', 'Foto berhasil diunggah!');
     }
     
@@ -71,20 +86,21 @@ class PhotoController extends Controller
         return view('photos.show', compact('photo'));
     }
 
+
+
     public function like($id)
     {
         $photo = Photo::findOrFail($id);
         $user = auth()->user();
     
-        // Cek apakah pengguna sudah menyukai foto
+       
         $like = Like::where('photo_id', $photo->id)->where('user_id', $user->id)->first();
     
         if ($like) {
-            // Jika sudah like, lakukan unlike
+           
             $like->delete();
             $liked = false;
         } else {
-            // Jika belum like, lakukan like
             $photo->likes()->create(['user_id' => $user->id]);
             $liked = true;
         }
@@ -95,14 +111,7 @@ class PhotoController extends Controller
         ]);
     }
   
-    public function toggleStatus($id)
-{
-    $photo = Photo::findOrFail($id);
-    $photo->status = !$photo->status; // Ubah status aktif/nonaktif
-    $photo->save();
 
-    return redirect()->route('admin.dashboard')->with('success', 'Status foto berhasil diperbarui.');
-}
 
 public function destroy($id)
 {
@@ -122,12 +131,10 @@ public function destroy($id)
     return redirect()->route('profile.show', Auth::id())->with('success', 'Foto berhasil dihapus!');
 }
 
-// Menampilkan form edit foto
 public function edit($id)
 {
     $photo = Photo::findOrFail($id);
     
-    // Pastikan hanya pemilik foto yang bisa mengedit
     if ($photo->user_id !== auth()->id()) {
         return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki izin untuk mengedit foto ini.');
     }
@@ -135,7 +142,7 @@ public function edit($id)
     return view('photos.edit', compact('photo'));
 }
 
-// Menyimpan hasil edit
+
 public function update(Request $request, $id)
 {
     $photo = Photo::findOrFail($id);
@@ -146,10 +153,8 @@ public function update(Request $request, $id)
     ]);
 
     if ($request->hasFile('photo')) {
-        // Hapus foto lama jika ada foto baru
         Storage::delete('public/' . $photo->image_path);
 
-        // Simpan foto baru
         $path = $request->file('photo')->store('photos', 'public');
         $photo->image_path = $path;
     }
@@ -157,14 +162,13 @@ public function update(Request $request, $id)
     $photo->description = $request->description;
     $photo->save();
 
-    // Kembali ke halaman profil dengan pesan sukses
     return redirect()->route('profile.show', $photo->user_id)->with('success', 'Foto berhasil diperbarui!');
 }
 
 public function profile(User $user)
 {
     $photos = Photo::where('user_id', $user->id)
-        ->withCount(['likes', 'comments']) // Pastikan ini ada
+        ->withCount(['likes', 'comments'])
         ->get();
 
     return view('profile', compact('user', 'photos'));
@@ -172,7 +176,25 @@ public function profile(User $user)
 
 public function __construct()
 {
-    $this->middleware('auth'); // memastikan hanya pengguna yang terautentikasi yang bisa mengakses
+    $this->middleware('auth'); 
+}
+
+
+public function byCategory($id)
+{
+    $category = Category::findOrFail($id);
+    $photos = $category->photos()->latest()->paginate(12);
+
+    return view('photos.index', compact('photos', 'category'));
+}
+
+public function toggleStatus($id)
+{
+    $photo = Photo::findOrFail($id);
+    $photo->status = !$photo->status; 
+    $photo->save();
+
+    return redirect()->route('admin.dashboard')->with('success', 'Status foto berhasil diperbarui.');
 }
 
 

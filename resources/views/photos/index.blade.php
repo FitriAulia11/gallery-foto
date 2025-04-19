@@ -1,20 +1,49 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container py-5">
+    <!-- Header Galeri -->
     <div class="text-center mb-4">
-        <h2 class="fw-bold">Galeri Foto</h2>
-        <p class="text-muted">Jelajahi dan bagikan foto terbaikmu</p>
+        <h2 class="fw-bold display-5 text-gradient">
+            <i class="bi bi-images me-2"></i> Galeri Foto
+        </h2>
+        <p class="text-muted fs-5">Jelajahi dan bagikan foto terbaikmu di sini 🎨</p>
     </div>
 
-    <!-- 🔍 Form Pencarian -->
-    <form method="GET" action="{{ route('photos.index') }}" class="mb-4 d-flex justify-content-center">
-        <input type="text" name="search" value="{{ request('search') }}" class="form-control w-50 me-2" placeholder="Cari berdasarkan judul, deskripsi, atau nama pengguna...">
-        <button type="submit" class="btn btn-primary">Cari</button>
-    </form>
-    
+    <!-- Kategori aktif -->
+    @isset($activeCategory)
+        <div class="text-center mb-4">
+            <span class="badge rounded-pill bg-light text-dark px-4 py-2 shadow-sm">
+                Kategori: <strong>{{ $activeCategory->name }}</strong>
+            </span>
+        </div>
+    @endisset
+
+    <!-- Form Pencarian -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10 col-lg-8">
+            <form method="GET" action="{{ route('photos.index') }}">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control rounded-start-pill px-4 py-2"
+                        placeholder="🔍 Cari judul, deskripsi, user, atau kategori..."
+                        value="{{ request('search') }}">
+                    
+                    @if(request('category'))
+                        <input type="hidden" name="category" value="{{ request('category') }}">
+                    @endif
+
+                    <button type="submit" class="btn btn-pink-purple rounded-end-pill px-4">
+                        <i class="bi bi-search me-1"></i> Cari
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    {{-- Tampilkan foto --}}
     @if($photos->isEmpty())
-        <div class="alert alert-warning text-center">Belum ada foto yang diunggah.</div>
+        <div class="alert alert-warning text-center">Belum ada foto yang ditemukan.</div>
     @else
         <div class="row" data-masonry='{"percentPosition": true }'>
             @foreach($photos as $photo)
@@ -25,11 +54,6 @@
                              style="cursor: pointer; border-radius: 15px; transition: 0.3s ease-in-out;"
                              onmouseover="this.style.opacity='0.8';"
                              onmouseout="this.style.opacity='1';"
-                             data-bs-toggle="modal"
-                             data-bs-target="#photoModal"
-                             data-src="{{ asset('storage/' . $photo->image_path) }}"
-                             data-caption="{{ $photo->caption }}"
-                             data-like-url="{{ route('photos.like', $photo->id) }}"
                              data-comment-url="{{ route('photos.show', $photo->id) }}"
                              alt="Photo">
 
@@ -53,34 +77,12 @@
                 </div>
             @endforeach
         </div>
-    @endif
-</div>
 
-<!-- Modal Foto -->
-<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="photoModalLabel">Foto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="modalPhoto" src="" class="img-fluid rounded shadow" alt="Preview">
-                <p class="mt-2 fw-bold" id="photoCaption"></p>
-            </div>
-            <div class="modal-footer d-flex justify-content-between">
-                <form id="likeForm" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-like">
-                        <i class="bi bi-heart"></i> <span class="ms-1">Like</span>
-                    </button>
-                </form>
-                <a href="#" id="commentLink" class="btn btn-outline-secondary">
-                    <i class="bi bi-chat-dots"></i> Komentar
-                </a>
-            </div>
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-center mt-4">
+            {{ $photos->withQueryString()->links() }}
         </div>
-    </div>
+    @endif
 </div>
 @endsection
 
@@ -92,10 +94,10 @@
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".preview-photo").forEach(photo => {
         photo.addEventListener("click", function() {
-            document.getElementById("modalPhoto").src = this.getAttribute("data-src");
-            document.getElementById("photoCaption").innerText = this.getAttribute("data-caption");
-            document.getElementById("likeForm").action = this.getAttribute("data-like-url");
-            document.getElementById("commentLink").href = this.getAttribute("data-comment-url");
+            const commentUrl = this.getAttribute("data-comment-url");
+            if (commentUrl) {
+                window.location.href = commentUrl;
+            }
         });
     });
 
@@ -113,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <style>
     .btn-like {
         background-color: white;
-        border: 1px solid #dc3545; /* Merah */
+        border: 1px solid #dc3545;
         color: #dc3545;
         transition: all 0.3s ease;
         display: flex;
@@ -136,5 +138,22 @@ document.addEventListener("DOMContentLoaded", function() {
     .like-count {
         margin-left: 4px;
     }
+    .text-gradient {
+    background: linear-gradient(45deg, #fbc2eb, #a6c1ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.btn-pink-purple {
+    background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+    color: white;
+    border: none;
+}
+
+.btn-pink-purple:hover {
+    background: linear-gradient(135deg, #e2b2f0, #91bdf2);
+    color: white;
+}
+
 </style>
 @endsection

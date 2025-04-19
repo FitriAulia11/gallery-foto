@@ -11,7 +11,6 @@
         </p>
     </div>
 
-    <!-- Galeri Foto -->
     <div class="row justify-content-center g-3">
         <div class="col-md-4">
             <div class="gallery-item">
@@ -36,15 +35,13 @@
         </div>
     </div>
 
-    <!-- Cek Role Pengguna -->
     <div class="mt-5">
         @guest
-            <!-- Jika belum login -->
-            <a href="{{ route('login') }}" class="btn btn-lg btn-primary px-5 py-3 shadow rounded-pill fw-bold">
+
+        <a href="{{ route('login') }}" class="btn btn-lg btn-primary px-5 py-3 shadow rounded-pill fw-bold">
                 <i class="bi bi-box-arrow-in-right"></i> Masuk Sekarang
             </a>
         @else
-            <!-- Jika sudah login -->
             <div class="d-flex justify-content-center gap-4">
                 @if(Auth::user()->role === 'admin')
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-lg btn-success px-5 py-3 shadow rounded-pill fw-bold">
